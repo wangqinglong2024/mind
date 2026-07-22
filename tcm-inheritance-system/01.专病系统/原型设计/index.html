@@ -24,7 +24,6 @@
 <body>
 <div class="mj-top">
   <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">名老中医AI传承系统</span></div>
-  <div class="mj-modtab">专病动态表单</div>
   <div class="mj-menu"></div>
   <div class="mj-user"><span class="av"></span><span>王青龙</span></div>
 </div>
@@ -35,7 +34,7 @@
     <a class="entry admin" href="admin/index.html">
       <div class="ico">🛠️</div>
       <h3>管理端（配置）</h3>
-      <p>动态表单配置器：页/卡片/字段增删改、宽度、是否入列表、条件属性；类目管理；一键预览（可切换移动端效果）。</p>
+      <p>配置类目与模板、页 / 卡片 / 字段（9 种组件）及其属性（宽度、是否入列表、校验、条件等）；一键预览，可切 Web / 移动端。</p>
     </a>
     <a class="entry app" href="app/index.html">
       <div class="ico">📝</div>
@@ -43,12 +42,7 @@
       <p>按专病/数据类目 Tab 展示动态列表（列由「是否在列表中显示」决定）；新增填报、查看记录；Web 与 H5 响应式自适应。</p>
     </a>
   </div>
-  <div class="note">
-    ● 默认已内置含全部 8 种组件的示例表单（冠心病初诊表）及样例数据。<br>
-    ● 建议用 Chrome 打开；两端共享浏览器 localStorage 实现互通。<br>
-    ● 想恢复初始示例数据，点下方按钮。
-    <div class="reset"><button class="btn" onclick="MJ.Store.reset();location.reload()">重置为初始示例数据</button></div>
-  </div>
+  <div class="reset" style="margin-top:24px"><button class="btn" onclick="MJ.Store.reset();location.reload()">重置为初始示例数据</button></div>
 </div>
 <script src="shared/store.js"></script>
 </body>

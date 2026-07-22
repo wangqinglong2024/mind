@@ -2,7 +2,7 @@
 window.MJ = window.MJ || {};
 (function(){
   const K = { cat:'mj_categories', form:'mj_forms', sub:'mj_submissions', ver:'mj_seed_ver' };
-  const SEED_VER = '7';
+  const SEED_VER = '9';
   const uid = p => (p||'id')+'_'+Math.random().toString(36).slice(2,8);
 
   function load(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } }
@@ -45,14 +45,30 @@ window.MJ = window.MJ || {};
   function seed(){
     if(load(K.ver)===SEED_VER) return;
     const cats = [
-      { id:'c_zb',    name:'专病（医案）', parentId:null, order:1 },
-      { id:'c_gxb',   name:'冠心病', parentId:'c_zb', order:1 },
-      { id:'c_tnb',   name:'糖尿病', parentId:'c_zb', order:2 },
-      { id:'c_expert',name:'专家数据', parentId:null, order:2 },
-      { id:'c_pai',   name:'学术流派', parentId:null, order:3 },
+      { id:'c_gxb',   name:'冠心病', parentId:null, order:1 },
+      { id:'c_tnb',   name:'糖尿病', parentId:null, order:2 },
+      { id:'c_expert',name:'专家数据', parentId:null, order:3 },
+      { id:'c_pai',   name:'学术流派', parentId:null, order:4 },
     ];
     const fGxb = demoForm('form_gxb','冠心病初诊表','c_gxb');
+    const fGxb2 = { id:'form_gxb2', name:'冠心病随访表', categoryId:'c_gxb',
+      roles:{edit:['管理员','录入员'],view:['专家']},
+      pages:[{ id:'gp1', title:'随访', cards:[{ id:'gc1', title:'随访记录', fields:[
+        { id:'v_date',  type:'date',  label:'随访日期', required:true, width:'1/2', showInList:true, defaultToday:true },
+        { id:'v_effect',type:'radio', label:'疗效', width:'1/2', showInList:true, options:['显效','有效','无效'] },
+        { id:'v_change',type:'textarea', label:'症状变化', showInList:false },
+        { id:'v_synd',  type:'tags',  label:'证候变化', showInList:true, hint:'输入词后回车添加' },
+      ]}]}]
+    };
     const fTnb = demoForm('form_tnb','糖尿病初诊表','c_tnb');
+    const fTnb2 = { id:'form_tnb2', name:'糖尿病随访表', categoryId:'c_tnb',
+      roles:{edit:['管理员'],view:['专家']},
+      pages:[{ id:'tp1', title:'随访', cards:[{ id:'tc1', title:'随访记录', fields:[
+        { id:'d_date', type:'date',   label:'随访日期', required:true, width:'1/2', showInList:true, defaultToday:true },
+        { id:'d_glu',  type:'number', label:'空腹血糖', width:'1/2', showInList:true, unit:'mmol/L' },
+        { id:'d_note', type:'textarea', label:'随访记录', showInList:false },
+      ]}]}]
+    };
     const fExp = {
       id:'form_exp', name:'专家档案', categoryId:'c_expert',
       roles:{edit:['管理员'],view:['专家','录入员']},
@@ -63,7 +79,7 @@ window.MJ = window.MJ || {};
         { id:'e_photo',type:'image', label:'照片', showInList:false, max:1 },
       ]}]}]
     };
-    const forms = [fGxb, fTnb, fExp];
+    const forms = [fGxb, fGxb2, fTnb, fTnb2, fExp];
 
     const now = Date.now();
     const subs = [
@@ -73,8 +89,12 @@ window.MJ = window.MJ || {};
       { id:uid('s'), formId:'form_gxb', categoryId:'c_gxb', createdAt:now-86400000, values:{
         f_name:'李秀兰', f_sex:'女', f_age:58, f_visit:'2026-07-18', f_chief:'心悸、胸痛，劳累后明显',
         f_synd:['痰浊','气滞'], f_sym:['头晕'], f_rx:[{c_drug:'瓜蒌',c_dose:20,c_unit:'g',c_proc:''}] }},
+      { id:uid('s'), formId:'form_gxb2', categoryId:'c_gxb', createdAt:now-3600000*2, values:{
+        v_date:'2026-07-20', v_effect:'有效', v_change:'胸闷较前减轻，仍有乏力', v_synd:['血瘀减轻'] }},
       { id:uid('s'), formId:'form_tnb', categoryId:'c_tnb', createdAt:now-3600000, values:{
         f_name:'王大明', f_sex:'男', f_age:52, f_visit:'2026-07-20', f_chief:'口渴多饮多尿半年' }},
+      { id:uid('s'), formId:'form_tnb2', categoryId:'c_tnb', createdAt:now-3600000*3, values:{
+        d_date:'2026-07-19', d_glu:7.8, d_note:'血糖控制尚可，嘱继续服药' }},
       { id:uid('s'), formId:'form_exp', categoryId:'c_expert', createdAt:now-3600000*5, values:{
         e_name:'陈国华', e_title:'主任医师', e_good:'擅长冠心病、心律失常，善用益气活血法' }},
     ];

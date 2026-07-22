@@ -13,6 +13,10 @@
   .cat-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px}
   .cat-tab{padding:9px 20px;border-radius:22px;background:#fff;border:1px solid var(--border);color:#5a6a80;white-space:nowrap;cursor:pointer;font-size:14px}
   .cat-tab.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:var(--shadow)}
+  .tpl-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .tpl-label{color:var(--muted);font-size:13px}
+  .tpl-chip{padding:6px 14px;border-radius:6px;background:#fff;border:1px solid var(--border);color:#5a6a80;cursor:pointer;font-size:13px}
+  .tpl-chip.active{background:var(--primary-l);border-color:var(--primary);color:var(--primary);font-weight:600}
   .list-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
   .list-h .t{font-size:16px;font-weight:600}
   .empty{padding:60px 20px;text-align:center;color:var(--muted)}
@@ -32,13 +36,13 @@
 <body>
 <div class="mj-top">
   <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">名老中医AI传承系统</span></div>
-  <div class="mj-modtab">数据采集</div>
   <div class="mj-menu"><a class="active">专病采集</a><a>名师数据</a><a>统计分析</a></div>
   <div class="mj-user"><span class="av"></span><span>录入员 · 王青龙</span></div>
 </div>
 
 <div class="app-wrap">
   <div class="cat-tabs" id="tabs"></div>
+  <div class="tpl-bar" id="tplBar"></div>
   <div id="listView" class="panel" style="padding:16px">
     <div class="list-h">
       <div class="t" id="listTitle">—</div>
@@ -46,7 +50,7 @@
     </div>
     <div class="tbl-wrap"><table class="tbl" id="tbl"><thead></thead><tbody></tbody></table></div>
     <div class="cards" id="cards"></div>
-    <div class="empty" id="empty" style="display:none">该类目暂无数据，点击「新增填报」开始录入</div>
+    <div class="empty" id="empty" style="display:none">该模板暂无数据，点击「新增填报」开始录入</div>
   </div>
   <div id="formView" class="panel" style="display:none"></div>
 </div>
@@ -55,8 +59,10 @@
 <script src="../shared/engine.js"></script>
 <script>
 const S=MJ.Store, E=MJ.Engine;
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;};
 const device=()=> window.innerWidth<768?'h5':'web';
-let curCat=null, curForm=null;
+let curCat=null, curFormId=null;
+const curForm=()=>S.getForm(curFormId);
 
 function catsWithForms(){
   return S.getCategories().filter(c=> S.formsByCategory(c.id).length>0);
@@ -64,18 +70,29 @@ function catsWithForms(){
 function renderTabs(){
   const box=document.getElementById('tabs'); box.innerHTML='';
   const cats=catsWithForms();
-  if(!curCat && cats[0]) curCat=cats[0].id;
+  if(!curCat || !cats.some(c=>c.id===curCat)) curCat=cats[0]&&cats[0].id;
   cats.forEach(c=>{
-    const t=document.createElement('div'); t.className='cat-tab'+(c.id===curCat?' active':''); t.textContent=c.name;
-    t.onclick=()=>{ curCat=c.id; renderTabs(); renderList(); };
+    const t=el('div','cat-tab'+(c.id===curCat?' active':'')); t.textContent=c.name;
+    t.onclick=()=>{ curCat=c.id; curFormId=null; renderTabs(); };
     box.appendChild(t);
   });
+  renderTpl();
+}
+function renderTpl(){
+  const bar=document.getElementById('tplBar'); bar.innerHTML='';
+  const forms=curCat? S.formsByCategory(curCat):[];
+  if(!curFormId || !forms.some(f=>f.id===curFormId)) curFormId=forms[0]&&forms[0].id;
+  if(forms.length){
+    bar.appendChild(el('span','tpl-label','选择模板：'));
+    forms.forEach(f=>{ const t=el('div','tpl-chip'+(f.id===curFormId?' active':'')); t.textContent=f.name; t.onclick=()=>{ curFormId=f.id; renderTpl(); }; bar.appendChild(t); });
+  }
+  renderList();
 }
 function renderList(){
-  curForm = S.formsByCategory(curCat)[0];
-  document.getElementById('listTitle').textContent = curForm ? curForm.name : '—';
-  const cols=curForm? E.listColumns(curForm):[];
-  const subs=curForm? S.getSubmissions(curForm.id).slice().sort((a,b)=>b.createdAt-a.createdAt):[];
+  const cur=curForm();
+  document.getElementById('listTitle').textContent = cur ? cur.name : '—';
+  const cols=cur? E.listColumns(cur):[];
+  const subs=cur? S.getSubmissions(cur.id).slice().sort((a,b)=>b.createdAt-a.createdAt):[];
   const tbl=document.getElementById('tbl'), cards=document.getElementById('cards'), empty=document.getElementById('empty');
   const thead=tbl.querySelector('thead'), tbody=tbl.querySelector('tbody');
   thead.innerHTML=''; tbody.innerHTML=''; cards.innerHTML='';
@@ -99,16 +116,17 @@ function renderList(){
   });
   document.querySelectorAll('[data-id]').forEach(a=>a.onclick=()=>openForm(subs.find(x=>x.id===a.dataset.id)));
 }
-const elc=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;};
+const elc=el;
 function esc(s){ return (s==null?'':String(s)).replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m])); }
 function fmt(t){ const d=new Date(t); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
 
 function backToList(){ document.getElementById('formView').style.display='none'; document.getElementById('listView').style.display='block'; }
 function openForm(sub){
+  const cur=curForm(); if(!cur) return;
   const view=!!sub;
-  const inst=E.renderForm(curForm,{device:device(), values: sub? sub.values:{}});
+  const inst=E.renderForm(cur,{device:device(), values: sub? sub.values:{}});
   const fv=document.getElementById('formView'); fv.innerHTML='';
-  const head=elc('div','fv-h'); head.appendChild(elc('span','fv-t', view?('查看记录 · '+curForm.name):('新增填报 · '+curForm.name)));
+  const head=elc('div','fv-h'); head.appendChild(elc('span','fv-t', view?('查看记录 · '+cur.name):('新增填报 · '+cur.name)));
   const back=elc('button','btn','← 返回列表'); back.onclick=backToList; head.appendChild(back);
   const body=elc('div','fv-b'); body.appendChild(inst.el);
   fv.append(head, body);
@@ -118,15 +136,15 @@ function openForm(sub){
     inst.el.querySelectorAll('.img-add,.subt .link,.tags-field .ctrl,.chip-x').forEach(x=>x.style.display='none');
   } else {
     inst.onSubmit(vals=>{
-      S.addSubmission({ id:S.uid('s'), formId:curForm.id, categoryId:curCat, createdAt:Date.now(), values:vals });
+      S.addSubmission({ id:S.uid('s'), formId:cur.id, categoryId:curCat, createdAt:Date.now(), values:vals });
       backToList(); renderList();
     });
   }
   document.getElementById('listView').style.display='none'; fv.style.display='block'; window.scrollTo(0,0);
 }
-document.getElementById('btnAdd').onclick=()=>{ if(curForm) openForm(null); };
+document.getElementById('btnAdd').onclick=()=>{ if(curForm()) openForm(null); };
 let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(renderList,200); });
-renderTabs(); renderList();
+renderTabs();
 </script>
 </body>
 </html>
