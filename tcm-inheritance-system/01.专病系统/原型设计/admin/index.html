@@ -234,9 +234,7 @@ function renderProp(){
   if(t==='radio'||t==='checkbox'){
     const gO=grp('选项');
     item(gO,'选项（每行一个）', area((f.options||[]).join('\n'), v=>{f.options=v.split('\n').map(s=>s.trim()).filter(Boolean);renderProp();rc();}, 4));
-    if(t==='radio') gO.appendChild(swRow(sw('允许清空', f.allowClear!==false, v=>f.allowClear=v), sw('含"其他"项', f.allowOther, v=>f.allowOther=v)));
-    if(t==='checkbox'){ item(gO,'选择数量（最少/最多）', two(numI(f.minSel,v=>f.minSel=v,'最少'), numI(f.maxSel,v=>f.maxSel=v,'最多'))); gO.appendChild(swRow(sw('含"其他"项', f.allowOther, v=>f.allowOther=v))); }
-    gO.appendChild(el('div','col-info','展示固定为下拉（避免选项过多撑坏宽度）。'));
+    if(t==='checkbox') item(gO,'选择数量（最少/最多）', two(numI(f.minSel,v=>f.minSel=v,'最少'), numI(f.maxSel,v=>f.maxSel=v,'最多')));
   }
 
   /* 校验 / 规则 */
@@ -278,7 +276,6 @@ function renderProp(){
   }
   if(t==='tags'){
     const g=grp('标签规则');
-    g.appendChild(el('div','col-info','纯自由输入，无预设候选词（如需从固定项选择请用「多选」）。'));
     item(g,'最多标签数', numI(f.maxTags, v=>f.maxTags=v, '不限'));
     g.appendChild(swRow(sw('允许重复标签', f.allowRepeat, v=>f.allowRepeat=v)));
   }
@@ -308,15 +305,8 @@ function renderProp(){
   else item(gD,'栅格宽度', selI(WOPTS, f.width||'full', v=>{f.width=v;rc();}));
   if(['text','textarea','radio','checkbox','number','date'].includes(t)) item(gD,'标签位置', selI(LABELPOS, f.labelPos||'top', v=>f.labelPos=v));
   if(t==='image') item(gD,'缩略图每行张数', numI(f.perRow||4, v=>f.perRow=v));
-  if(t==='subtable'){ gD.appendChild(swRow(sw('表头吸顶', f.stickyHead!==false, v=>f.stickyHead=v))); gD.appendChild(el('div','col-info','移动端：横向滚动表格。')); }
-  gD.appendChild(swRow(sw('只读', f.readonly, v=>f.readonly=v), sw('默认隐藏', f.hidden, v=>f.hidden=v), sw('在列表中显示', f.showInList, v=>{f.showInList=v;rc();})));
-
-  /* 高级 */
-  const gA=grp('高级');
-  gA.appendChild(swRow(sw('参与条件逻辑', f.logic, v=>f.logic=v)));
-  if(t==='text'||t==='number'||t==='textarea') gA.appendChild(swRow(sw('数据脱敏', f.mask, v=>f.mask=v)));
-  item(gA,'可查看角色（顿号分隔）', txt((f.viewRoles||[]).join('、'), v=>f.viewRoles=v.split(/[、,]/).map(s=>s.trim()).filter(Boolean)));
-  item(gA,'可编辑角色（顿号分隔）', txt((f.editRoles||[]).join('、'), v=>f.editRoles=v.split(/[、,]/).map(s=>s.trim()).filter(Boolean)));
+  if(t==='subtable') gD.appendChild(swRow(sw('表头吸顶', f.stickyHead!==false, v=>f.stickyHead=v)));
+  gD.appendChild(swRow(sw('只读', f.readonly, v=>f.readonly=v), sw('在列表中显示', f.showInList, v=>{f.showInList=v;rc();})));
 
   const del=el('button','btn block','删除该字段'); del.style.marginTop='6px'; del.style.color='var(--danger)';
   del.onclick=()=>{ const {cd}=info; cd.fields=cd.fields.filter(x=>x.id!==f.id); selId=null; renderAll(); };
