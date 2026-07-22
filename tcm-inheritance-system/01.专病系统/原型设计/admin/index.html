@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>表单配置 · 管理端</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+  .layout{display:flex;gap:14px;padding:14px;align-items:flex-start}
+  .col-left{width:260px;flex:none}
+  .col-mid{flex:1;min-width:0}
+  .col-right{width:300px;flex:none}
+  .tree-item{padding:7px 10px;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:6px}
+  .tree-item:hover{background:var(--hover)}
+  .tree-cat{font-weight:600;color:#39485e}
+  .tree-form{padding-left:22px;color:#5a6a80}
+  .tree-form.active{background:var(--primary-l);color:var(--primary);font-weight:600}
+  .cat-acts{display:flex;gap:10px;white-space:nowrap;align-items:center}
+  .cat-acts .link{font-size:12px}
+  #catTree .tree-item{gap:6px}
+  #modeCat .col-left{width:auto;flex:1}
+  #modeCat .col-mid{flex:none;width:340px}
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .toolbar .name{font-size:15px;font-weight:600;border:1px solid transparent;padding:4px 8px;border-radius:5px}
+  .toolbar .name:focus{outline:none;border-color:var(--primary);background:#fff}
+  .canvas{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;min-height:400px}
+  .b-page{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px}
+  .b-page>.ph{padding:9px 12px;background:#eef4fb;border-bottom:1px solid var(--border);font-weight:600;display:flex;justify-content:space-between;align-items:center;border-radius:var(--radius) var(--radius) 0 0}
+  .b-page>.pb{padding:12px}
+  .b-card{border:1px dashed var(--border-d);border-radius:var(--radius);margin-bottom:12px}
+  .b-card>.ch{padding:7px 10px;background:#fafcff;border-bottom:1px dashed var(--border-d);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .b-card>.cb{padding:10px;display:flex;flex-wrap:wrap;gap:8px}
+  .b-field{border:1px solid var(--border);border-radius:5px;background:#fff;padding:8px 10px;cursor:pointer;font-size:13px;display:flex;flex-direction:column;gap:4px}
+  .b-field.sel{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-l)}
+  .b-field .top{display:flex;align-items:center;gap:6px}
+  .b-field .lbl{font-weight:600}
+  .b-field .ops{display:flex;gap:6px;margin-top:2px}
+  .badge{font-size:11px;padding:0 6px;border-radius:3px;background:#eef2f7;color:var(--muted)}
+  .badge.t{background:var(--primary-l);color:var(--primary)}
+  .badge.w{background:#eef7f0;color:var(--green-d)}
+  .badge.l{background:var(--orange-l);color:var(--orange)}
+  .add-field{display:flex;gap:6px;align-items:center;margin-top:8px}
+  .prop{padding:14px}
+  .prop label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+  .prop input,.prop select,.prop textarea{width:100%;border:1px solid var(--border-d);border-radius:5px;padding:7px 9px;font-size:13px;box-sizing:border-box}
+  .prop input:focus,.prop select:focus,.prop textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-l)}
+  .prop select{appearance:none;-webkit-appearance:none;padding-right:28px;cursor:pointer;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 4.5l3.5 3.5 3.5-3.5" fill="none" stroke="%238a97a8" stroke-width="1.5" stroke-linecap="round"/></svg>');background-repeat:no-repeat;background-position:right 9px center}
+  .dlg-body{padding:4px 2px}
+  .prop .row2{display:flex;gap:8px}
+  .switch{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .col-info{color:var(--muted);font-size:12px;padding:20px;text-align:center}
+  .dev-tog{display:flex;gap:6px}
+  .dev-tog .btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .pv-full{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column}
+  .pv-h{height:54px;flex:none;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+  .pv-body{flex:1;overflow:auto;padding:22px}
+  .pv-body.h5{display:flex;justify-content:center;align-items:flex-start;background:#dde3ec}
+  .phone{width:390px;border:10px solid #222;border-radius:28px;padding:10px;background:#fff;max-height:calc(100vh - 98px);overflow:auto}
+</style>
+</head>
+<body>
+<div class="mj-top">
+  <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">名老中医AI传承系统</span></div>
+  <div class="mj-modtab">表单配置管理端</div>
+  <div class="mj-menu"><a class="active">动态表单</a><a>类目管理</a><a>数据统计</a></div>
+  <div class="mj-user"><span class="av"></span><span>管理员 · 王青龙</span></div>
+</div>
+<div class="mj-steps" id="steps">
+  <div class="mj-step active" data-mode="form">表单配置</div>
+  <div class="mj-step" data-mode="cat">类目管理</div>
+</div>
+
+<!-- 表单配置模式 -->
+<div class="layout" id="modeForm">
+  <div class="col-left panel">
+    <div class="panel-h">类目 / 表单 <span class="link" id="newForm">+新建表单</span></div>
+    <div id="tree" style="padding:8px"></div>
+  </div>
+  <div class="col-mid">
+    <div class="toolbar panel" style="padding:10px 12px">
+      <input class="name" id="formName" placeholder="表单名称">
+      <span style="flex:1"></span>
+      <button class="btn" id="addPage">+ 页</button>
+      <button class="btn" id="btnPreview">预览</button>
+      <button class="btn primary" id="btnSave">保存</button>
+    </div>
+    <div class="canvas" id="canvas"></div>
+  </div>
+  <div class="col-right panel">
+    <div class="panel-h">属性配置</div>
+    <div class="prop" id="prop"><div class="col-info">点击左侧字段进行配置</div></div>
+  </div>
+</div>
+
+<!-- 类目管理模式 -->
+<div class="layout" id="modeCat" style="display:none">
+  <div class="col-left panel">
+    <div class="panel-h">类目列表 <button class="btn sm primary" id="newCat">添加类目</button></div>
+    <div id="catTree" style="padding:8px"></div>
+  </div>
+  <div class="col-mid panel" style="padding:20px">
+    <div class="col-info" style="text-align:left;line-height:2">
+      <b>类目管理说明</b><br>
+      · <b>添加类目</b>：新增顶级专病 / 数据类目。<br>
+      · <b>添加子类目</b>：在任意类目下再建下一级，支持多级。<br>
+      · <b>添加模板</b>：在类目下新建一张表单模板，点击后进入「表单配置」编辑字段。<br>
+      · <b>编辑 / 删除</b>：重命名或删除类目、模板。<br>
+      · 模板即该类目下的表单，应用端按类目 Tab 展示其数据列表。
+    </div>
+  </div>
+</div>
+
+<div id="host"></div>
+
+<script src="../shared/store.js"></script>
+<script src="../shared/engine.js"></script>
+<script>
+const S=MJ.Store, E=MJ.Engine;
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;};
+const WOPTS=[['full','整行'],['3/4','¾'],['2/3','⅔'],['1/2','½'],['1/3','⅓'],['1/4','¼']];
+const TYPES=[['text','单行文本'],['textarea','多行文本'],['radio','单选'],['checkbox','多选'],['number','数字'],['date','日期'],['image','图片'],['tags','标签文本'],['subtable','列表']];
+let form=null, selId=null;
+
+/* ---------- 左侧类目/表单树 ---------- */
+function renderTree(){
+  const box=document.getElementById('tree'); box.innerHTML='';
+  const cats=S.getCategories();
+  const top=cats.filter(c=>!c.parentId);
+  const walk=(c,depth)=>{
+    const it=el('div','tree-item tree-cat'); it.style.paddingLeft=(6+depth*14)+'px'; it.textContent='📁 '+c.name; box.appendChild(it);
+    S.formsByCategory(c.id).forEach(f=>{
+      const fi=el('div','tree-item tree-form'+(form&&f.id===form.id?' active':'')); fi.textContent='📄 '+f.name;
+      fi.onclick=()=>loadForm(f.id); box.appendChild(fi);
+    });
+    cats.filter(x=>x.parentId===c.id).sort((a,b)=>a.order-b.order).forEach(ch=>walk(ch,depth+1));
+  };
+  top.sort((a,b)=>a.order-b.order).forEach(c=>walk(c,0));
+}
+function loadForm(id){ form=JSON.parse(JSON.stringify(S.getForm(id))); selId=null; renderAll(); }
+
+/* ---------- 中间画布 ---------- */
+function findField(id){ for(const pg of form.pages)for(const cd of pg.cards){const f=cd.fields.find(x=>x.id===id); if(f)return {f,cd,pg};} return null; }
+function renderCanvas(){
+  const cv=document.getElementById('canvas'); cv.innerHTML='';
+  if(!form){ cv.innerHTML='<div class="col-info">请选择或新建一个表单</div>'; return; }
+  document.getElementById('formName').value=form.name;
+  form.pages.forEach((pg,pi)=>{
+    const pEl=el('div','b-page');
+    const ph=el('div','ph'); const pt=el('span',null,'页 '+(pi+1)+'：'+pg.title);
+    const pops=el('span'); const acard=el('span','link','+卡片'); acard.onclick=()=>{ pg.cards.push({id:S.uid('cd'),title:'新卡片',fields:[]}); renderCanvas(); };
+    const rnp=el('span','link','重命名'); rnp.onclick=()=>{ dlgPrompt('页标题',pg.title).then(n=>{ if(n){pg.title=n;renderCanvas();} }); };
+    const delp=el('span','link danger','删除'); delp.onclick=()=>{ if(form.pages.length<=1){dlgAlert('至少保留一页');return;} dlgConfirm('删除该页？','该页及其卡片、字段都会删除。').then(ok=>{ if(ok){form.pages.splice(pi,1);renderCanvas();} }); };
+    pops.append(acard,rnp,delp); ph.append(pt,pops); pEl.appendChild(ph);
+    const pb=el('div','pb');
+    pg.cards.forEach((cd,ci)=>{
+      const cEl=el('div','b-card'); const ch=el('div','ch');
+      const ct=el('span',null,'▤ '+cd.title);
+      const cops=el('span'); const rnc=el('span','link','重命名'); rnc.onclick=()=>{ dlgPrompt('卡片标题',cd.title).then(n=>{ if(n){cd.title=n;renderCanvas();} }); };
+      const delc=el('span','link danger','删除'); delc.onclick=()=>{ dlgConfirm('删除该卡片？','卡片内字段都会删除。').then(ok=>{ if(ok){pg.cards.splice(ci,1);renderCanvas();} }); };
+      cops.append(rnc,delc); ch.append(ct,cops); cEl.appendChild(ch);
+      const cb=el('div','cb');
+      cd.fields.forEach((f,fi)=>{
+        const fe=el('div','b-field'+(f.id===selId?' sel':'')); fe.style.flex='0 0 calc('+wpct(f)+'% - 8px)';
+        const top=el('div','top'); top.appendChild(el('span','lbl',f.label||'(未命名)')); if(f.required)top.appendChild(el('span',null,'*')).style.color='var(--danger)';
+        const badges=el('div','ops'); badges.appendChild(el('span','badge t',E.TYPE_NAME[f.type]));
+        badges.appendChild(el('span','badge w',E.BLOCK.has(f.type)?'整行':(WOPTS.find(w=>w[0]===(f.width||'full'))||['','整行'])[1]));
+        if(f.showInList)badges.appendChild(el('span','badge l','列表'));
+        const mv=el('div','ops');
+        const up=el('span','link','↑'); up.onclick=e=>{e.stopPropagation(); if(fi>0){[cd.fields[fi-1],cd.fields[fi]]=[cd.fields[fi],cd.fields[fi-1]];renderCanvas();}};
+        const dn=el('span','link','↓'); dn.onclick=e=>{e.stopPropagation(); if(fi<cd.fields.length-1){[cd.fields[fi+1],cd.fields[fi]]=[cd.fields[fi],cd.fields[fi+1]];renderCanvas();}};
+        const rm=el('span','link danger','删'); rm.onclick=e=>{e.stopPropagation(); cd.fields.splice(fi,1); if(selId===f.id)selId=null; renderAll();};
+        mv.append(up,dn,rm);
+        fe.append(top,badges,mv);
+        fe.onclick=()=>{ selId=f.id; renderAll(); };
+        cb.appendChild(fe);
+      });
+      // 添加字段
+      const addBar=el('div','add-field'); addBar.style.width='100%';
+      const sel=el('select','ctrl'); sel.style.width='150px'; sel.style.flex='none'; TYPES.forEach(t=>{const o=el('option',null,t[1]);o.value=t[0];sel.appendChild(o);});
+      const addBtn=el('button','btn sm','+ 添加字段'); addBtn.onclick=()=>{ const nf=newField(sel.value); cd.fields.push(nf); selId=nf.id; renderAll(); };
+      addBar.append(sel,addBtn); cb.appendChild(addBar);
+      cEl.appendChild(cb); pb.appendChild(cEl);
+    });
+    pEl.appendChild(pb); cv.appendChild(pEl);
+  });
+}
+function wpct(f){ if(E.BLOCK.has(f.type))return 100; return (E.WIDTHS[f.width]??1)*100; }
+function newField(type){
+  const id=S.uid('f'); const base={id,type,label:E.TYPE_NAME[type],required:false,showInList:false,width:'full'};
+  if(type==='radio'||type==='checkbox')base.options=['选项1','选项2'];
+  if(type==='tags')base.allowRepeat=false;
+  if(type==='subtable')base.columns=[{id:S.uid('c'),type:'text',label:'列1'}],base.allowAddRow=true;
+  if(type==='number')base.unit='';
+  return base;
+}
+
+/* ---------- 右侧属性面板 ---------- */
+function renderProp(){
+  const p=document.getElementById('prop'); p.innerHTML='';
+  if(!selId){ p.innerHTML='<div class="col-info">点击左侧字段进行配置</div>'; return; }
+  const info=findField(selId); if(!info){ p.innerHTML='<div class="col-info">—</div>'; return; }
+  const f=info.f; const isBlock=E.BLOCK.has(f.type);
+  const add=(lab,node)=>{ p.appendChild(el('label',null,lab)); p.appendChild(node); };
+  p.appendChild(el('div','badge t',E.TYPE_NAME[f.type]));
+  const lab=el('input'); lab.value=f.label||''; lab.oninput=()=>{f.label=lab.value; renderCanvas();}; add('字段名（标签）',lab);
+  // 宽度
+  const wsel=el('select'); WOPTS.forEach(w=>{const o=el('option',null,w[1]);o.value=w[0];wsel.appendChild(o);});
+  wsel.value=isBlock?'full':(f.width||'full'); wsel.disabled=isBlock; wsel.onchange=()=>{f.width=wsel.value;renderCanvas();};
+  add('栅格宽度'+(isBlock?'（块级固定整行）':''), wsel);
+  // 必填 / 列表
+  const rowSw=el('div'); rowSw.style.display='flex'; rowSw.style.gap='16px'; rowSw.style.marginTop='10px';
+  rowSw.appendChild(sw('必填', f.required, v=>{f.required=v;renderCanvas();}));
+  rowSw.appendChild(sw('入列表', f.showInList, v=>{f.showInList=v;renderCanvas();}));
+  p.appendChild(rowSw);
+  // 提示
+  const hint=el('input'); hint.value=f.hint||''; hint.oninput=()=>f.hint=hint.value; add('提示说明',hint);
+  // 类型特有
+  if(f.type==='radio'||f.type==='checkbox'){
+    const ta=el('textarea'); ta.rows=4; ta.value=(f.options||[]).join('\n'); ta.oninput=()=>{f.options=ta.value.split('\n').map(s=>s.trim()).filter(Boolean);renderCanvas();};
+    add('选项（每行一个）',ta);
+  }
+  if(f.type==='tags'){
+    p.appendChild(el('div','col-info','标签文本为纯自由输入（无预设候选词）。填报时输入并回车即成一个标签，便于按标签统计。'));
+    const mt=el('input'); mt.type='number'; mt.placeholder='不限'; mt.value=f.maxTags??''; mt.oninput=()=>f.maxTags=mt.value===''?null:Number(mt.value); add('最多标签数',mt);
+    const rp=el('div'); rp.style.marginTop='10px'; rp.appendChild(sw('允许重复标签', f.allowRepeat, v=>f.allowRepeat=v)); p.appendChild(rp);
+  }
+  if(f.type==='number'){
+    const r=el('div','row2'); const mn=el('input');mn.type='number';mn.placeholder='最小';mn.value=f.min??'';mn.oninput=()=>f.min=mn.value===''?null:Number(mn.value);
+    const mx=el('input');mx.type='number';mx.placeholder='最大';mx.value=f.max??'';mx.oninput=()=>f.max=mx.value===''?null:Number(mx.value);
+    r.append(mn,mx); add('数值范围',r);
+    const u=el('input');u.value=f.unit||'';u.oninput=()=>f.unit=u.value; add('单位',u);
+  }
+  if(f.type==='image'){ const m=el('input');m.type='number';m.value=f.max||9;m.oninput=()=>f.max=Number(m.value); add('数量上限',m); }
+  if(f.type==='subtable'){ renderCols(p,f); }
+  // 删除
+  const del=el('button','btn block','删除该字段'); del.style.marginTop='16px'; del.style.color='var(--danger)';
+  del.onclick=()=>{ const {cd}=info; cd.fields=cd.fields.filter(x=>x.id!==f.id); selId=null; renderAll(); };
+  p.appendChild(del);
+}
+function sw(label,val,cb){ const w=el('label','switch'); const i=el('input');i.type='checkbox';i.checked=!!val;i.onchange=()=>cb(i.checked); w.append(i,el('span',null,label)); return w; }
+function renderCols(p,f){
+  p.appendChild(el('label',null,'子表列配置'));
+  (f.columns||[]).forEach((c,i)=>{
+    const r=el('div','row2'); r.style.marginBottom='6px';
+    const lb=el('input');lb.value=c.label;lb.oninput=()=>{c.label=lb.value;renderCanvas();};
+    const ts=el('select'); TYPES.filter(t=>t[0]!=='subtable').forEach(t=>{const o=el('option',null,t[1]);o.value=t[0];ts.appendChild(o);}); ts.value=c.type; ts.onchange=()=>{c.type=ts.value;};
+    const rm=el('button','btn sm','×');rm.onclick=()=>{f.columns.splice(i,1);renderProp();renderCanvas();};
+    r.append(lb,ts,rm); p.appendChild(r);
+  });
+  const addc=el('button','btn sm','+ 添加列'); addc.onclick=()=>{f.columns.push({id:S.uid('c'),type:'text',label:'列'+(f.columns.length+1)});renderProp();renderCanvas();};
+  p.appendChild(addc);
+}
+
+function renderAll(){ renderTree(); renderCanvas(); renderProp(); }
+
+/* ---------- 顶部操作 ---------- */
+document.getElementById('formName').oninput=e=>{ if(form)form.name=e.target.value; };
+document.getElementById('addPage').onclick=()=>{ if(!form)return; form.pages.push({id:S.uid('pg'),title:'新页',cards:[{id:S.uid('cd'),title:'新卡片',fields:[]}]}); renderCanvas(); };
+document.getElementById('btnSave').onclick=()=>{ if(!form)return; S.saveForm(form); toast('已保存'); renderTree(); };
+document.getElementById('newForm').onclick=()=>{
+  const cats=S.getCategories(); const cat=cats.find(c=>c.parentId)||cats[0];
+  const nf={id:S.uid('form'),name:'新表单',categoryId:cat.id,roles:{edit:['管理员'],view:[]},pages:[{id:S.uid('pg'),title:'第1页',cards:[{id:S.uid('cd'),title:'卡片1',fields:[]}]}]};
+  S.saveForm(nf); loadForm(nf.id);
+};
+document.getElementById('btnPreview').onclick=()=>openPreview();
+
+/* ---------- 预览（=应用端，可切移动端） ---------- */
+function openPreview(){
+  if(!form)return;
+  let device='web';
+  const host=document.getElementById('host');
+  const wrap=el('div','pv-full');
+  wrap.innerHTML=`<div class="pv-h"><div style="font-weight:600">预览：${form.name}</div>
+    <div style="display:flex;gap:12px;align-items:center"><span class="dev-tog"><button class="btn sm active" data-d="web">Web 全屏</button><button class="btn sm" data-d="h5">移动端</button></span><button class="btn" data-close>关闭预览</button></div></div>
+    <div class="pv-body web" id="pvBody"></div>`;
+  host.appendChild(wrap);
+  const body=wrap.querySelector('#pvBody');
+  const draw=()=>{ body.className='pv-body '+device; body.innerHTML=''; const inst=E.renderForm(form,{device}); if(device==='h5'){ const ph=el('div','phone'); ph.appendChild(inst.el); body.appendChild(ph); } else body.appendChild(inst.el);
+    inst.onSubmit(()=>toast('预览提交校验通过（预览态不保存）')); };
+  wrap.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ device=b.dataset.d; wrap.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('active',x===b)); draw(); });
+  wrap.querySelector('[data-close]').onclick=()=>host.innerHTML='';
+  draw();
+}
+
+/* ---------- 类目管理 ---------- */
+function renderCatTree(){
+  const box=document.getElementById('catTree'); box.innerHTML='';
+  const cats=S.getCategories();
+  const walk=(c,d)=>{
+    const it=el('div','tree-item'); it.style.paddingLeft=(6+d*16)+'px';
+    const nm=el('span',null,'📁 '+c.name); nm.style.flex='1'; nm.style.fontWeight='600';
+    const acts=el('span','cat-acts');
+    const bEdit=el('span','link','编辑'); bEdit.onclick=()=>dlgPrompt('类目名称',c.name).then(n=>{ if(n){c.name=n;S.setCategories(cats);renderCatTree();renderTree();} });
+    const bSub=el('span','link','添加子类目'); bSub.onclick=()=>dlgPrompt('子类目名称').then(n=>{ if(n){cats.push({id:S.uid('c'),name:n,parentId:c.id,order:99});S.setCategories(cats);renderCatTree();renderTree();} });
+    const bTpl=el('span','link','添加模板'); bTpl.onclick=()=>addTemplate(c.id);
+    const bDel=el('span','link danger','删除'); bDel.onclick=()=>delCategory(c);
+    acts.append(bEdit,bSub,bTpl,bDel); it.append(nm,acts); box.appendChild(it);
+    // 该类目下的模板（表单）
+    S.formsByCategory(c.id).forEach(f=>{
+      const fi=el('div','tree-item'); fi.style.paddingLeft=(6+(d+1)*16)+'px';
+      const fn=el('span',null,'📄 '+f.name); fn.style.flex='1'; fn.style.color='#5a6a80';
+      const fa=el('span','cat-acts');
+      const fEdit=el('span','link','编辑'); fEdit.onclick=()=>{ switchMode('form'); loadForm(f.id); };
+      const fRn=el('span','link','重命名'); fRn.onclick=()=>dlgPrompt('模板名称',f.name).then(n=>{ if(n){f.name=n;S.saveForm(f);renderCatTree();renderTree();} });
+      const fDel=el('span','link danger','删除'); fDel.onclick=()=>dlgConfirm('删除模板？','该模板及其填报数据将一并删除。').then(ok=>{ if(ok){S.deleteForm(f.id);renderCatTree();renderTree();} });
+      fa.append(fEdit,fRn,fDel); fi.append(fn,fa); box.appendChild(fi);
+    });
+    cats.filter(x=>x.parentId===c.id).sort((a,b)=>a.order-b.order).forEach(ch=>walk(ch,d+1));
+  };
+  cats.filter(c=>!c.parentId).sort((a,b)=>a.order-b.order).forEach(c=>walk(c,0));
+}
+function delCategory(c){
+  const cats=S.getCategories();
+  if(S.formsByCategory(c.id).length){ dlgAlert('该类目下有模板，请先删除或移走模板'); return; }
+  if(cats.some(x=>x.parentId===c.id)){ dlgAlert('该类目下有子类目，请先删除子类目'); return; }
+  dlgConfirm('删除类目？','删除后不可恢复。').then(ok=>{ if(ok){ S.setCategories(cats.filter(x=>x.id!==c.id)); renderCatTree(); renderTree(); } });
+}
+function addTemplate(catId){
+  dlgPrompt('模板名称','新模板').then(n=>{ if(!n)return;
+    const nf={id:S.uid('form'),name:n,categoryId:catId,roles:{edit:['管理员'],view:[]},pages:[{id:S.uid('pg'),title:'第1页',cards:[{id:S.uid('cd'),title:'卡片1',fields:[]}]}]};
+    S.saveForm(nf); switchMode('form'); loadForm(nf.id); toast('已创建模板，请配置字段');
+  });
+}
+document.getElementById('newCat').onclick=()=>{ dlgPrompt('类目名称').then(n=>{ if(n){const cats=S.getCategories();cats.push({id:S.uid('c'),name:n,parentId:null,order:99});S.setCategories(cats);renderCatTree();renderTree();} }); };
+
+/* ---------- 模式切换 ---------- */
+function switchMode(m){
+  document.querySelectorAll('#steps .mj-step').forEach(x=>x.classList.toggle('active',x.dataset.mode===m));
+  document.getElementById('modeForm').style.display=m==='form'?'flex':'none';
+  document.getElementById('modeCat').style.display=m==='cat'?'flex':'none';
+  if(m==='cat')renderCatTree();
+}
+document.querySelectorAll('#steps .mj-step').forEach(s=>s.onclick=()=>switchMode(s.dataset.mode));
+
+/* ---------- 自建弹框（替代浏览器 prompt/confirm/alert） ---------- */
+function modal(opts){
+  const host=document.getElementById('host');
+  const mask=el('div','mask'); const m=el('div','modal'); m.style.width=opts.width||'400px';
+  const h=el('div','m-h'); h.appendChild(el('span',null,opts.title||'提示')); const x=el('span','x','×'); h.appendChild(x);
+  const b=el('div','m-b'); if(typeof opts.body==='string'){ const p=el('div','dlg-body',opts.body); b.appendChild(p);} else b.appendChild(opts.body);
+  const f=el('div','m-f');
+  const close=()=>{ if(mask.parentNode)host.removeChild(mask); };
+  x.onclick=()=>{ if(opts.onCancel)opts.onCancel(); close(); };
+  mask.onclick=e=>{ if(e.target===mask){ if(opts.onCancel)opts.onCancel(); close(); } };
+  (opts.buttons||[]).forEach(bt=>{ const btn=el('button','btn'+(bt.primary?' primary':'')); btn.textContent=bt.label; btn.onclick=()=>{ if(bt.onClick&&bt.onClick()===false)return; close(); }; f.appendChild(btn); });
+  m.append(h,b,f); mask.appendChild(m); host.appendChild(mask); return {close};
+}
+function dlgPrompt(title,def){ return new Promise(res=>{ const inp=el('input','ctrl'); inp.value=def||''; const wrap=el('div'); wrap.appendChild(inp);
+  inp.onkeydown=e=>{ if(e.key==='Enter'){ res(inp.value.trim()); m.close(); } };
+  const m=modal({title,body:wrap,onCancel:()=>res(null),buttons:[{label:'取消',onClick:()=>res(null)},{label:'确定',primary:true,onClick:()=>res(inp.value.trim())}]});
+  setTimeout(()=>inp.focus(),30); }); }
+function dlgConfirm(title,msg){ return new Promise(res=>{ modal({title,body:msg||'确定执行该操作？',onCancel:()=>res(false),buttons:[{label:'取消',onClick:()=>res(false)},{label:'确定',primary:true,onClick:()=>res(true)}]}); }); }
+function dlgAlert(msg){ modal({title:'提示',body:msg,buttons:[{label:'知道了',primary:true}]}); }
+
+function toast(msg){ const t=el('div',null,msg); t.style.cssText='position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#2fb37e;color:#fff;padding:9px 18px;border-radius:6px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.2)'; document.body.appendChild(t); setTimeout(()=>t.remove(),1600); }
+
+// 初始化：加载第一个表单
+const first=S.getForms()[0]; if(first)loadForm(first.id); else renderAll();
+</script>
+</body>
+</html>
