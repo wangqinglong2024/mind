@@ -6,24 +6,17 @@
 <title>应用端 · 数据列表</title>
 <link rel="stylesheet" href="../shared/theme.css">
 <style>
-  .layout{display:flex;height:calc(100vh - 56px)}
-  .side{width:230px;flex:none;background:#fff;border-right:1px solid var(--border);overflow:auto;padding:12px}
-  .side .cat-h{font-weight:600;color:#41506a;padding:8px 8px 4px;font-size:13px}
-  .side .tpl{padding:8px 10px 8px 22px;border-radius:6px;cursor:pointer;font-size:13px;color:#41506a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .side .tpl:hover{background:var(--hover)}
-  .side .tpl.active{background:var(--primary-l);color:var(--primary);font-weight:600}
-  .side .tpl .st{font-size:11px;color:#8a97a8;margin-left:4px}
-  .main{flex:1;overflow:auto;padding:18px 22px}
-  .qbar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
-  .qf{display:flex;flex-direction:column;gap:4px}
-  .qf label{font-size:12px;color:#6a7688}
-  .qf .in,.qf .ctrl{border:1px solid var(--border-d);border-radius:6px;padding:7px 9px;font-size:13px;min-width:150px;background:#fff}
-  .qf .range{display:flex;gap:6px;align-items:center}
-  .qf .range .in{min-width:110px}
-  .qf.algo{margin-left:auto;align-self:center;flex-direction:row;gap:8px}
+  .main{padding:18px 22px}
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar .grow{flex:1}
   .rec-q{padding:10px 0;border-bottom:1px solid #f0f3f8}
   .rec-l{color:#6a7688;font-size:13px;margin-bottom:5px}
-  .rec-v{color:#2f3b4c;font-size:14px}
+  .filter-body .qf{margin-bottom:16px}
+  .filter-body .qf>label{display:block;font-size:13px;color:#41506a;margin-bottom:6px;font-weight:500}
+  .filter-body .range{display:flex;gap:8px;align-items:center}
+  .filter-body .chk{display:flex;flex-wrap:wrap;gap:8px 14px}
+  .filter-body .chk label{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#41506a}
+  .fdrawer{width:400px}
 </style>
 </head>
 <body>
@@ -32,122 +25,181 @@
   <div class="mj-menu"><a href="../admin/index.html">表单设置</a><a class="active">数据列表</a></div>
   <div class="mj-user"><span class="av"></span><span>录入员</span></div>
 </div>
-<div class="layout">
-  <!-- 左：类目 → 表单模板（跟随管理端层级） -->
-  <div class="side" id="side"></div>
-  <div class="main">
-    <h2 id="tplTitle" style="margin:2px 0 14px;font-size:18px"></h2>
-    <div class="qbar" id="qbar"></div>
-    <div class="panel">
-      <table class="tbl">
-        <thead id="thead"></thead>
-        <tbody id="tbody"></tbody>
-      </table>
+
+<!-- 顶部二级导航：类目（一级标签页）→ 表单（二级胶囊） -->
+<div class="subnav">
+  <div class="subnav-cats" id="navCats"></div>
+  <div class="subnav-forms"><span class="lb">表单</span><span id="navForms"></span></div>
+</div>
+
+<div class="main">
+  <div class="toolbar">
+    <h2 id="tplTitle" style="margin:0;font-size:18px"></h2>
+    <div class="grow"></div>
+    <button class="btn" id="btnFilter" onclick="openFilter()">🔍 查询条件</button>
+    <button class="btn primary" id="btnAdd" onclick="openFill('add')">＋ 新增数据</button>
+  </div>
+  <div class="panel">
+    <table class="tbl">
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 查询条件：右侧抽屉 -->
+<div id="filterMask" class="mask" style="display:none;justify-content:flex-end">
+  <div class="drawer fdrawer">
+    <div class="d-h">查询条件 <span class="x" onclick="closeFilter()">×</span></div>
+    <div class="d-b filter-body" id="filterBody"></div>
+    <div class="d-f"><button class="btn" onclick="clearFilter()">清空</button><button class="btn primary" onclick="applyFilter()">查询</button></div>
+  </div>
+</div>
+
+<!-- 查看 / 编辑 / 采集：预览式（web/手机切换） -->
+<div id="fillMask" class="mask" style="display:none">
+  <div class="modal" style="width:900px;max-width:96vw;height:90vh">
+    <div class="m-h"><span id="fillTitle">查看数据</span>
+      <span style="display:flex;align-items:center;gap:14px">
+        <span class="pv-seg" style="transform:scale(.92)">
+          <button id="segPhone" onclick="setDev('mobile')">📱 手机</button>
+          <button id="segPc" class="active" onclick="setDev('pc')">💻 电脑</button>
+        </span>
+        <span class="x" onclick="closeFill()">×</span>
+      </span>
     </div>
+    <div class="m-b" style="background:#eef2f7;flex:1;display:flex;justify-content:center;align-items:flex-start">
+      <div id="fillPaper" class="pv-paper" style="margin:18px 0"></div>
+    </div>
+    <div class="m-f" id="fillFoot"></div>
   </div>
 </div>
-<!-- 查看记录 -->
-<div id="dtMask" class="mask" style="display:none">
-  <div class="modal" style="width:640px;max-height:86vh">
-    <div class="m-h">查看记录 <span class="x" onclick="closeDetail()">×</span></div>
-    <div class="m-b" id="dtBody"></div>
-    <div class="m-f"><button class="btn" onclick="closeDetail()">关闭</button></div>
-  </div>
-</div>
+
 <script src="../shared/store.js"></script>
 <script src="../shared/engine.js"></script>
 <script>
 const S=MJ.Store, E=MJ.Engine;
-let curId=null, filters={};
+let curCat=null, curId=null, filters={}, pending={}, fillMode='view', fillSubId=null;
 
 function eachQ(form,fn){ (form.pages||[]).forEach(p=>(p.cards||[]).forEach(c=>(c.questions||[]).forEach(fn))); }
-function renderSide(){
-  const cats=S.getCategories();
-  let firstWithData=null, firstAny=null;
-  document.getElementById('side').innerHTML = cats.map(c=>{
-    const tpls=S.formsByCategory(c.id);
-    return `<div class="cat-h">${E.esc(c.name)}</div>` + (tpls.length? tpls.map(f=>{
-      if(!firstAny) firstAny=f.id;
-      if(!firstWithData && S.getSubmissions(f.id).length) firstWithData=f.id;
-      const st={draft:'草稿',published:'已发布',unpublished:'取消发布'}[f.status];
-      return `<div class="tpl ${f.id===curId?'active':''}" onclick="selectTpl('${f.id}')">${E.esc(f.title)||'（未命名）'}<span class="st">${st}</span></div>`;
-    }).join('') : `<div class="tpl" style="color:#c2ccd9;cursor:default">（无表单）</div>`);
-  }).join('') || '<div class="hint" style="padding:8px">暂无类目</div>';
-  if(!curId) curId = firstWithData || firstAny;
+/* 仅展示已发布 或 已下架但“显示数据”的表单；草稿及隐藏数据的不出现 */
+function visibleForms(catId){ return S.formsByCategory(catId).filter(f=> f.status==='published' || (f.status==='unpublished' && !f.hidden) ); }
+
+function renderNav(){
+  /* 仅展示“有已发布/显示中表单”的类目，空类目整体隐藏 */
+  const cats=S.getCategories().filter(c=>visibleForms(c.id).length);
+  if((!curCat || !cats.some(c=>c.id===curCat)) && cats.length) curCat=cats[0].id;
+  if(!cats.length){ document.getElementById('navCats').innerHTML='<span class="hint" style="padding:11px 16px">暂无已发布表单</span>'; document.getElementById('navForms').innerHTML=''; curCat=null; curId=null; return; }
+  document.getElementById('navCats').innerHTML = cats.map(c=>`<span class="cat-tab ${c.id===curCat?'active':''}" onclick="selectCat('${c.id}')">${E.esc(c.name)}</span>`).join('');
+  const forms=visibleForms(curCat);
+  if(!curId || !forms.some(f=>f.id===curId)) curId = forms.length? forms[0].id : null;
+  document.getElementById('navForms').innerHTML = forms.length
+    ? forms.map(f=>`<span class="form-pill ${f.id===curId?'active':''}" onclick="selectForm('${f.id}')">${E.esc(f.title)||'（未命名）'}</span>`).join('')
+    : '<span class="hint">该类目暂无已发布表单</span>';
 }
-function selectTpl(id){ curId=id; filters={}; renderSide(); renderMain(); }
+function selectCat(id){ curCat=id; curId=null; filters={}; renderNav(); renderMain(); }
+function selectForm(id){ curId=id; filters={}; renderNav(); renderMain(); }
+
 function allQueryQuestions(form){ const out=[]; eachQ(form,q=>{ if(q.query&&q.query.on) out.push(q); }); return out; }
-function listColumns(form){ const out=[]; eachQ(form,q=>{ if(q.showInList) out.push(q); }); return out; }
+function listColumns(form){ const out=[]; eachQ(form,q=>{ if(q.showInList && S.canShowInList(q)) out.push(q); }); return out; }
 
 function renderMain(){
   const cur = curId && S.getForm(curId);
-  if(!cur){ document.getElementById('tplTitle').textContent='请选择左侧表单'; document.getElementById('qbar').innerHTML=''; document.getElementById('thead').innerHTML=''; document.getElementById('tbody').innerHTML=''; return; }
+  const add=document.getElementById('btnAdd'), flt=document.getElementById('btnFilter');
+  if(!cur){ document.getElementById('tplTitle').textContent='请选择上方表单'; document.getElementById('thead').innerHTML=''; document.getElementById('tbody').innerHTML=''; add.disabled=true; flt.disabled=true; return; }
+  add.disabled=false; flt.disabled=false;
   document.getElementById('tplTitle').textContent = (cur.title||'（未命名）')+' · 数据';
-  renderQBar(cur); renderTable(cur);
+  renderTable(cur);
 }
-function renderQBar(cur){
-  const qs=allQueryQuestions(cur); const bar=document.getElementById('qbar');
-  if(!qs.length){ bar.innerHTML='<span style="color:#8a97a8;font-size:13px">该表单未配置查询条件</span>'; return; }
-  bar.innerHTML = qs.map(q=>{
-    const mode=q.query.mode; let ctrl='';
-    if(mode==='fuzzy') ctrl=`<input class="in" placeholder="模糊匹配" oninput="setF('${q.id}',this.value)">`;
-    else if(mode==='exact'&&q.type==='text') ctrl=`<input class="in" placeholder="精准匹配" oninput="setF('${q.id}',this.value)">`;
-    else if(mode==='range'&&q.type==='number') ctrl=`<div class="range"><input class="in" type="number" placeholder="最小" oninput="setF('${q.id}_min',this.value)"><span>~</span><input class="in" type="number" placeholder="最大" oninput="setF('${q.id}_max',this.value)"></div>`;
-    else if(mode==='range'&&q.type==='date') ctrl=`<div class="range"><input class="in" type="date" oninput="setF('${q.id}_from',this.value)"><span>~</span><input class="in" type="date" oninput="setF('${q.id}_to',this.value)"></div>`;
-    else if(mode==='select'||mode==='multi') ctrl=`<select class="ctrl in" onchange="setF('${q.id}',this.value)"><option value="">全部</option>${q.options.map(o=>`<option>${E.esc(o.linkName||o.text)}</option>`).join('')}</select>`;
-    else ctrl=`<input class="in" oninput="setF('${q.id}',this.value)">`;
-    return `<div class="qf"><label>${E.esc(q.title)}</label>${ctrl}</div>`;
-  }).join('') + `<div class="qf algo"><button class="btn" onclick="clearF()">重置</button></div>`;
-}
-function setF(k,v){ filters[k]=v; renderTable(S.getForm(curId)); }
-function clearF(){ filters={}; renderMain(); }
 
-function matchRow(cur,v){
-  const qs=allQueryQuestions(cur);
-  for(const q of qs){ const val=v[q.id]; const m=q.query.mode;
-    if(m==='fuzzy'){ const f=filters[q.id]; if(f && !String(val||'').includes(f)) return false; }
-    else if(m==='exact'&&q.type==='text'){ const f=filters[q.id]; if(f && String(val||'')!==f) return false; }
-    else if(m==='range'&&q.type==='number'){ const mn=filters[q.id+'_min'],mx=filters[q.id+'_max']; if(mn!==undefined&&mn!==''&&Number(val)<Number(mn))return false; if(mx!==undefined&&mx!==''&&Number(val)>Number(mx))return false; }
-    else if(m==='range'&&q.type==='date'){ const fr=filters[q.id+'_from'],to=filters[q.id+'_to']; if(fr&&String(val||'')<fr)return false; if(to&&String(val||'')>to)return false; }
-    else if(m==='select'||m==='multi'){ const f=filters[q.id]; if(f){ const arr=Array.isArray(val)?val:[val]; if(!arr.includes(f))return false; } }
-  }
-  return true;
+/* ---------- 列表 ---------- */
+function cellText(q,v){
+  if(v==null||v==='') return '';
+  if(q.type==='subtable') return (Array.isArray(v)?v.length:0)+' 行';
+  if(Array.isArray(v)) return v.join('、');
+  return String(v);
 }
 function renderTable(cur){
   const cols=listColumns(cur);
-  document.getElementById('thead').innerHTML=`<tr>${cols.map(c=>`<th>${E.esc(c.title)}</th>`).join('')}<th style="width:120px">填写时间</th><th style="width:70px">操作</th></tr>`;
+  document.getElementById('thead').innerHTML=`<tr>${cols.map(c=>`<th>${E.esc(c.title)}</th>`).join('')}<th style="width:140px">填写时间</th><th style="width:160px">操作</th></tr>`;
   const rows=S.getSubmissions(cur.id).filter(s=>matchRow(cur,s.values)).sort((a,b)=>b.createdAt-a.createdAt);
   const fmt=ts=>{const d=new Date(ts);const p=n=>('0'+n).slice(-2);return `${d.getMonth()+1}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;};
-  document.getElementById('tbody').innerHTML = rows.map(s=>`<tr style="cursor:pointer" onclick="openDetail('${s.id}')">${cols.map(c=>{ let v=s.values[c.id]; if(Array.isArray(v))v=v.join('、'); return `<td>${E.esc(v==null?'':v)}</td>`; }).join('')}<td>${fmt(s.createdAt)}</td><td><span class="link">查看</span></td></tr>`).join('')
-    || `<tr><td colspan="${cols.length+2}" style="text-align:center;color:#8a97a8;padding:30px">无数据</td></tr>`;
+  document.getElementById('tbody').innerHTML = rows.map(s=>`<tr>${cols.map(c=>`<td>${E.esc(cellText(c,s.values[c.id]))}</td>`).join('')}<td>${fmt(s.createdAt)}</td>
+    <td><span class="link" onclick="openFill('view','${s.id}')">查看</span><span class="link" onclick="openFill('edit','${s.id}')">编辑</span><span class="link danger" onclick="delSub('${s.id}')">删除</span></td></tr>`).join('')
+    || `<tr><td colspan="${cols.length+2}" style="text-align:center;color:#8a97a8;padding:30px">暂无数据，点右上角「新增数据」录入</td></tr>`;
 }
+async function delSub(id){ if(await confirmA('确认删除该条数据？')){ S.deleteSubmission(id); renderTable(S.getForm(curId)); } }
 
-/* ---- 查看记录详情 ---- */
-function openDetail(subId){
-  const cur=S.getForm(curId); const sub=S.getSubmissions(cur.id).find(x=>x.id===subId); if(!sub) return;
-  document.getElementById('dtBody').innerHTML = renderRecord(cur, sub.values);
-  document.getElementById('dtMask').style.display='flex';
-}
-function closeDetail(){ document.getElementById('dtMask').style.display='none'; }
-function renderRecord(form, values){
-  let no=0;
-  return `<div class="pv-title" style="font-size:18px;margin-bottom:14px">${E.esc(form.title)}</div>` + (form.pages||[]).map(p=>{
-    const theme=p.theme?`<div class="pv-theme">${E.esc(p.theme)}</div>`:'';
-    const cards=(p.cards||[]).map(cd=>{
-      const ct=cd.title?`<div class="pv-card-t">${E.esc(cd.title)}</div>`:'';
-      const qs=(cd.questions||[]).map(q=>{
-        if(q.type==='richtext') return `<div class="q q-rich">${q.content||''}</div>`;
-        no++;
-        let v=values[q.id]; if(Array.isArray(v)) v=v.join('、');
-        v=(v==null||v==='')?'<span style="color:#c2ccd9">—</span>':E.esc(v);
-        return `<div class="rec-q"><div class="rec-l">${no}. ${E.esc(q.title)}</div><div class="rec-v">${v}</div></div>`;
-      }).join('');
-      return `<div class="pv-card">${ct}${qs}</div>`;
-    }).join('');
-    return theme+cards;
+/* ---------- 查询抽屉 ---------- */
+function openFilter(){ const cur=S.getForm(curId); if(!cur) return; pending=JSON.parse(JSON.stringify(filters)); renderFilterBody(cur); document.getElementById('filterMask').style.display='flex'; }
+function closeFilter(){ document.getElementById('filterMask').style.display='none'; }
+function renderFilterBody(cur){
+  const qs=allQueryQuestions(cur);
+  const el=document.getElementById('filterBody');
+  if(!qs.length){ el.innerHTML='<div class="hint" style="padding:8px">该表单未配置查询条件</div>'; return; }
+  el.innerHTML = qs.map(q=>{
+    const m=q.query.mode; let ctrl='';
+    if(m==='fuzzy') ctrl=`<input class="ctrl" placeholder="模糊查询" value="${E.esc(pending[q.id]||'')}" oninput="pending['${q.id}']=this.value">`;
+    else if(m==='exact') ctrl=`<input class="ctrl" placeholder="精准查询" value="${E.esc(pending[q.id]||'')}" oninput="pending['${q.id}']=this.value">`;
+    else if(m==='range'&&q.type==='number') ctrl=`<div class="range"><input class="ctrl" type="number" placeholder="最小" value="${E.esc(pending[q.id+'_min']||'')}" oninput="pending['${q.id}_min']=this.value"><span>~</span><input class="ctrl" type="number" placeholder="最大" value="${E.esc(pending[q.id+'_max']||'')}" oninput="pending['${q.id}_max']=this.value"></div>`;
+    else if(m==='range'&&q.type==='date') ctrl=`<div class="range"><input class="ctrl" type="date" value="${E.esc(pending[q.id+'_from']||'')}" oninput="pending['${q.id}_from']=this.value"><span>~</span><input class="ctrl" type="date" value="${E.esc(pending[q.id+'_to']||'')}" oninput="pending['${q.id}_to']=this.value"></div>`;
+    else if(m==='select') ctrl=`<select class="ctrl" onchange="pending['${q.id}']=this.value"><option value="">全部</option>${(q.options||[]).map(o=>{const l=o.linkName||o.text;return `<option ${pending[q.id]===l?'selected':''}>${E.esc(l)}</option>`;}).join('')}</select>`;
+    else if(m==='multi'){ const sel=pending[q.id]||[]; const disp=sel.length?sel.join('、'):'全部'; ctrl=`<div class="ms" data-qid="${q.id}"><div class="ms-disp ${sel.length?'':'placeholder'}" onclick="event.stopPropagation();this.parentNode.classList.toggle('open')">${E.esc(disp)}</div><div class="ms-panel">${(q.options||[]).map(o=>{const l=o.linkName||o.text;return `<label class="ms-opt"><input type="checkbox" value="${E.esc(l)}" ${sel.includes(l)?'checked':''} onchange="fmsChange('${q.id}')"> ${E.esc(l)}</label>`;}).join('')}</div></div>`; }
+    else ctrl=`<input class="ctrl" oninput="pending['${q.id}']=this.value">`;
+    return `<div class="qf"><label>${E.esc(q.title)}</label>${ctrl}</div>`;
   }).join('');
 }
-renderSide();
+function fmsChange(qid){ const box=document.querySelector('.ms[data-qid="'+qid+'"]'); if(!box)return; const sel=[...box.querySelectorAll('input:checked')].map(i=>i.value); pending[qid]=sel; const d=box.querySelector('.ms-disp'); d.textContent=sel.length?sel.join('、'):'全部'; d.classList.toggle('placeholder',!sel.length); }
+document.addEventListener('click',e=>{ if(!e.target.closest('.ms')) document.querySelectorAll('.ms.open').forEach(x=>x.classList.remove('open')); });
+function applyFilter(){ filters=JSON.parse(JSON.stringify(pending)); closeFilter(); renderTable(S.getForm(curId)); }
+function clearFilter(){ pending={}; filters={}; renderFilterBody(S.getForm(curId)); renderTable(S.getForm(curId)); }
+
+function matchRow(cur,v){
+  const qs=allQueryQuestions(cur);
+  for(const q of qs){ let val=v[q.id]; const m=q.query.mode;
+    const str = Array.isArray(val)? val.join('、') : (q.type==='subtable'? JSON.stringify(val||[]) : String(val==null?'':val));
+    if(m==='fuzzy'){ const f=filters[q.id]; if(f && !str.includes(f)) return false; }
+    else if(m==='exact'){ const f=filters[q.id]; if(f && str!==f) return false; }
+    else if(m==='range'&&q.type==='number'){ const mn=filters[q.id+'_min'],mx=filters[q.id+'_max']; if(mn!==undefined&&mn!==''&&Number(val)<Number(mn))return false; if(mx!==undefined&&mx!==''&&Number(val)>Number(mx))return false; }
+    else if(m==='range'&&q.type==='date'){ const fr=filters[q.id+'_from'],to=filters[q.id+'_to']; if(fr&&String(val||'')<fr)return false; if(to&&String(val||'')>to)return false; }
+    else if(m==='select'){ const f=filters[q.id]; if(f){ const arr=Array.isArray(val)?val:[val]; if(!arr.includes(f))return false; } }
+    else if(m==='multi'){ const f=filters[q.id]; if(f&&f.length){ const arr=Array.isArray(val)?val:[val]; if(!f.some(x=>arr.includes(x)))return false; } }
+  }
+  return true;
+}
+
+/* ---------- 查看 / 编辑 / 采集 ---------- */
+function openFill(mode, subId){
+  const cur=S.getForm(curId); if(!cur) return;
+  fillMode=mode; fillSubId=subId||null;
+  const sub = subId? S.getSubmissions(cur.id).find(x=>x.id===subId) : null;
+  const values = sub? sub.values : {};
+  const ro = mode==='view';
+  document.getElementById('fillTitle').textContent = mode==='view'?'查看数据':(mode==='edit'?'编辑数据':'新增数据');
+  const paper=document.getElementById('fillPaper');
+  paper.innerHTML = E.renderFill(cur, values, {readonly:ro});
+  E.activate(paper);   /* 只读也需绑定：多页时可翻页 */
+  document.getElementById('fillFoot').innerHTML = ro
+    ? `<button class="btn" onclick="closeFill()">关闭</button>`
+    : `<button class="btn" onclick="closeFill()">取消</button><button class="btn primary" onclick="saveFill()">保存</button>`;
+  setDev('pc');
+  document.getElementById('fillMask').style.display='flex';
+}
+function closeFill(){ document.getElementById('fillMask').style.display='none'; }
+function setDev(d){ const p=document.getElementById('fillPaper'); p.classList.toggle('mobile',d==='mobile'); document.getElementById('segPhone').classList.toggle('active',d==='mobile'); document.getElementById('segPc').classList.toggle('active',d!=='mobile'); }
+function saveFill(){
+  const cur=S.getForm(curId); const paper=document.getElementById('fillPaper');
+  const values=E.collectValues(paper, cur);
+  if(fillMode==='add'){ S.addSubmission({ id:S.uid('s'), formId:cur.id, createdAt:Date.now(), by:'录入员', values }); }
+  else { const sub=S.getSubmissions(cur.id).find(x=>x.id===fillSubId); if(sub){ sub.values=values; sub.updatedAt=Date.now(); S.updateSubmission(sub); } }
+  closeFill(); renderTable(cur); toastA(fillMode==='add'?'已新增数据':'已保存修改');
+}
+
+/* ---------- 简易确认 / 提示 ---------- */
+function confirmA(msg){ return Promise.resolve(window.confirm(msg)); }
+function toastA(t){ const d=document.createElement('div'); d.textContent=t; d.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#2f3b4c;color:#fff;padding:9px 18px;border-radius:6px;z-index:300;font-size:13px'; document.body.appendChild(d); setTimeout(()=>d.remove(),1600); }
+
+renderNav();
 renderMain();
 </script>
 </body>

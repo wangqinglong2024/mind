@@ -32,15 +32,22 @@
     <a class="entry" href="admin/index.html">
       <div class="ico">🧩</div>
       <h3>搭建端（类目 + 表单列表 + 搭建器）</h3>
-      <p>类目（单级）下建多个表单；表单列表（搜索/发布状态/编辑·复制·确认发布·删除）；问卷网式三栏搭建器：左组件 / 中画布 / 右属性；页内多卡片分组、题目拖拽排序、选择题非下拉、单选打分、选项关联症状疾病、查询条件、富文本编辑器。</p>
+      <p>类目（单级）下建多个表单；表单列表（搜索/发布状态/发布·下架·隐藏数据·复制·删除）；问卷网式三栏搭建器：左组件 / 中画布 / 右属性；页内多卡片分组、题目拖拽排序、题目标题画布内编辑、选项单/双列、单选默认选中、选项关联开关、列表列配置、查询条件、富文本编辑器。</p>
     </a>
     <a class="entry app" href="app/index.html">
       <div class="ico">📊</div>
       <h3>应用端（数据列表）</h3>
-      <p>按中台配置的「查询条件」在列表上方自动生成筛选（模糊/范围/下拉等）；字段+规则可传给算法；列由「在列表中显示为列」决定。</p>
+      <p>顶部二级导航（类目→表单，仅已发布）；「查询条件」以右侧抽屉呈现；列由「在列表中显示」决定；支持查看（预览式，web/手机切换）、编辑、删除、直接新增数据采集。</p>
     </a>
+  </div>
+  <div class="reset">
+    <button class="btn" onclick="resetAll()">🗑 重置示例数据</button>
+    <span class="hint" style="margin-left:10px">清空全部（含你新建/采集的数据），恢复到干净的示例种子</span>
   </div>
 </div>
 <script src="shared/store.js"></script>
+<script>
+function resetAll(){ if(confirm('确认清空所有本地数据并恢复示例？此操作不可撤销。')){ MJ.Store.reset(); location.reload(); } }
+</script>
 </body>
 </html>

@@ -8,6 +8,7 @@
 </head>
 <body class="pv-wrap">
 <div class="pv-toolbar">
+  <button class="btn" style="position:absolute;left:14px" onclick="backToEditor()">← 返回</button>
   <div class="pv-seg">
     <button id="segPhone" onclick="setDev('mobile')">📱 手机</button>
     <button id="segPc" class="active" onclick="setDev('pc')">💻 电脑</button>
@@ -21,11 +22,18 @@
 <script>
 let form=null;
 try{ form=JSON.parse(localStorage.getItem('mjf_preview')); }catch(e){}
-document.getElementById('paper').innerHTML = form ? MJ.Engine.renderForm(form, {interactive:true}) : '<div style="text-align:center;color:#8a97a8;padding:40px">无预览内容</div>';
+const paper=document.getElementById('paper');
+paper.innerHTML = form ? MJ.Engine.renderFill(form, {}, {readonly:false}) : '<div style="text-align:center;color:#8a97a8;padding:40px">无预览内容</div>';
+if(form) MJ.Engine.activate(paper);
 function setDev(d){
   document.getElementById('paper').classList.toggle('mobile', d==='mobile');
   document.getElementById('segPhone').classList.toggle('active', d==='mobile');
   document.getElementById('segPc').classList.toggle('active', d==='pc');
+}
+function backToEditor(){
+  // 预览为新标签页打开：优先关闭本页返回搭建端；无法关闭时回退跳转
+  window.close();
+  setTimeout(()=>{ location.href='admin/index.html'; }, 120);
 }
 </script>
 </body>

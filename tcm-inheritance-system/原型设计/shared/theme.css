@@ -57,7 +57,7 @@ button{font-family:inherit;cursor:pointer}
 .tbl th{background:var(--th);color:#5c6b7e;text-align:left;padding:11px 12px;font-weight:600;border-bottom:1px solid var(--border)}
 .tbl td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
 .tbl tbody tr:hover{background:var(--hover)}
-.tag{display:inline-block;padding:1px 8px;border-radius:3px;font-size:12px}
+.tag{display:inline-block;padding:1px 8px;border-radius:3px;font-size:12px;white-space:nowrap}
 .tag.warn{background:var(--orange-l);color:var(--orange)}
 .tag.info{background:var(--primary-l);color:var(--primary)}
 .tag.gray{background:#eef2f7;color:var(--muted)}
@@ -186,6 +186,14 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .pv-theme{font-size:16px;font-weight:600;text-align:center;color:#41506a;margin:10px 0 6px}
 .pv-page{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px}
 .pv-page-sec+.pv-page-sec{margin-top:6px}
+/* 预览/填报分页 */
+.pv-pager{display:flex;justify-content:center;gap:8px;margin:0 0 18px}
+.pv-pagi{min-width:28px;height:28px;padding:0 4px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;background:#eef2f7;color:#6a7688;cursor:pointer}
+.pv-pagi:hover{background:var(--hover);color:var(--primary)}
+.pv-pagi.active{background:var(--primary);color:#fff}
+.pv-pagenav{display:flex;justify-content:space-between;align-items:center;margin-top:22px;border-top:1px solid #f0f3f8;padding-top:16px}
+.pv-pageinfo{color:var(--muted);font-size:13px}
+.pv-pagenav .btn:disabled{opacity:.45;cursor:not-allowed;border-color:var(--border-d);color:var(--text)}
 
 /* ========== 三栏搭建器（问卷网风格） ========== */
 .bd{display:flex;height:calc(100vh - 56px)}
@@ -220,12 +228,23 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .qc.drop-before{box-shadow:0 -3px 0 var(--primary)}
 .qc.drop-after{box-shadow:0 3px 0 var(--primary)}
 .qc-drag{position:absolute;left:-4px;top:10px;color:#c2ccd9;cursor:grab;font-size:14px;padding:2px}
-.qc-ops{display:flex;gap:16px;align-items:center;padding:8px 0 4px;border-top:1px dashed #eef0f4;margin-top:8px;font-size:13px;color:#6a7688}
+.qc-ops{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:8px 0 4px;border-top:1px dashed #eef0f4;margin-top:8px;font-size:13px;color:#6a7688}
 .qc-ops label{display:flex;align-items:center;gap:5px;cursor:pointer}
 .qc-ops .op{cursor:pointer}
 .qc-ops .op:hover{color:var(--primary)}
 .qc-ops .op.del:hover{color:var(--danger)}
 .qc-type{position:absolute;right:10px;top:8px;font-size:11px;background:#eef2f7;color:#8a97a8;border-radius:4px;padding:1px 7px}
+.qc.ro{cursor:pointer}
+.qc-ro-mask{position:absolute;inset:0;z-index:3;cursor:pointer;border-radius:8px}
+.pp-ro-note{background:#fff6e8;color:#c77b12;border:1px solid #f0e0c4;border-radius:6px;padding:8px 10px;font-size:12px;margin-bottom:14px}
+/* 只读（已发布）属性面板：控件呈禁用态（置灰、不可点） */
+#props.ro .sw{opacity:.4;pointer-events:none;background:#c7d0dd}
+#props.ro .sw.on{background:#aab8cc}
+#props.ro .cq-cols button{cursor:not-allowed}
+#props.ro .cq-cols button.on{background:#aab8cc;border-color:#aab8cc}
+#props.ro .ctrl,#props.ro input,#props.ro select,#props.ro textarea{background:#f4f6f9;color:#9aa7b6;cursor:not-allowed;border-color:#e3e9f2}
+.cq-cols button:disabled{opacity:.7;cursor:not-allowed}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 
 /* 右栏属性 */
 .pp-empty{color:var(--muted);font-size:13px;text-align:center;padding:40px 0}
@@ -262,10 +281,15 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 /* ===== 中间选项编辑 ===== */
 .cq-opts{display:flex;flex-direction:column;gap:9px;margin:8px 0}
+.cq-opts.cols2{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px}
+/* 富文本：画布占位框 */
+.q-richph{border:1px dashed var(--border-d);border-radius:6px;padding:12px 12px 26px;color:var(--muted);font-size:13px;background:#fafcff}
 .cq-opt{display:flex;align-items:center;gap:9px}
 .cq-opt .mark{width:16px;height:16px;border:1px solid #c7d0dd;flex:none;background:#f3f6fb}
 .cq-opt .mark.radio{border-radius:50%}
 .cq-opt .mark.check{border-radius:4px}
+.cq-opt .mark.radio.on{border-color:var(--primary);box-shadow:inset 0 0 0 3px var(--primary);background:#fff}
+.cq-opt .mark.check.on{border-color:var(--primary);background:var(--primary)}
 .cq-opt input.otext{flex:1;min-width:0;border:1px solid var(--border-d);border-radius:6px;padding:7px 9px;font-size:14px}
 .cq-opt input.otext:focus{outline:none;border-color:var(--primary)}
 .cq-opt input.oscore{width:60px;border:1px solid var(--border-d);border-radius:6px;padding:7px;font-size:13px;text-align:center}
@@ -275,12 +299,13 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .cq-opt .orm:hover{color:var(--danger)}
 .cq-addopt{color:var(--primary);cursor:pointer;font-size:14px;display:inline-block;margin-top:2px}
 
-/* ===== 富文本编辑器 ===== */
-.cq-rich-tb{display:flex;gap:4px;margin:6px 0}
-.cq-rich-tb button{border:1px solid var(--border-d);background:#fff;border-radius:4px;padding:3px 9px;font-size:13px;cursor:pointer}
-.cq-rich-tb button:hover{border-color:var(--primary)}
+/* ===== 富文本编辑器（预览/填报） ===== */
+.cq-rich-tb,.rt-tb{display:flex;gap:4px;margin:6px 0}
+.cq-rich-tb button,.rt-tb button{border:1px solid var(--border-d);background:#fff;border-radius:4px;padding:3px 9px;font-size:13px;cursor:pointer}
+.cq-rich-tb button:hover,.rt-tb button:hover{border-color:var(--primary)}
 .cq-rich-ed,.q-rich-edit{min-height:64px;border:1px solid var(--border-d);border-radius:6px;padding:9px 11px;font-size:14px;line-height:1.7;background:#fff}
 .cq-rich-ed:focus,.q-rich-edit:focus{outline:none;border-color:var(--primary)}
+.q-richfill:empty:before{content:attr(data-ph);color:#c2ccd9}
 
 /* ===== 预览卡片 & 题目提示 ===== */
 .pv-card{border:1px solid #eef0f4;border-radius:8px;padding:4px 16px 6px;margin:14px 0}
@@ -294,3 +319,74 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .q-title-input::placeholder{color:#c2ccd9;font-weight:400}
 .q-head-row{display:flex;align-items:center;gap:4px;margin-bottom:10px}
 .link-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#6a7688;margin:2px 0 8px;cursor:pointer}
+
+/* 默认选中标记（静态占位） */
+.q-radio.on{border-color:var(--primary);box-shadow:inset 0 0 0 4px var(--primary);background:#fff}
+.q-check.on{border-color:var(--primary);background:var(--primary)}
+
+/* 图片新增框 */
+.q-imgadd{cursor:pointer}
+
+/* 子表：删除行 + 多选列下拉 */
+.subt .subt-del{display:inline-block;width:22px;height:22px;line-height:20px;text-align:center;color:#c2ccd9;cursor:pointer;font-weight:700;border-radius:4px}
+.subt .subt-del:hover{color:var(--danger);background:#fdecec}
+.cellms{position:relative}
+.cellms-d{border:1px solid var(--border-d);border-radius:4px;padding:6px 8px;cursor:pointer;min-height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fff}
+.cellms-d.ph{color:var(--muted)}
+.cellms.ro .cellms-d{cursor:default;border-color:transparent;padding-left:0}
+.cellms-p{display:none;position:fixed;z-index:1000;min-width:130px;max-height:220px;overflow:auto;background:#fff;border:1px solid var(--border-d);border-radius:6px;box-shadow:0 8px 24px rgba(20,50,90,.18);padding:4px}
+.cellms.open .cellms-p{display:block}
+.cellms-p label{display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.cellms-p label:hover{background:var(--hover)}
+
+/* ===== 画布：卡片底部“添加题目”按钮 + 弹出题型卡片 ===== */
+.cardadd{position:relative;margin-top:10px}
+.card-addbtn{width:100%;border:1px dashed var(--border-d);background:#fff;color:var(--primary);border-radius:8px;padding:9px;font-size:14px;cursor:pointer}
+.card-addbtn:hover,.card-addbtn.on{background:var(--primary-l);border-color:var(--primary)}
+.addpop{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:#fff;border:1px solid var(--border-d);border-radius:10px;box-shadow:0 10px 30px rgba(20,50,90,.18);padding:12px 14px;z-index:30}
+.addpop::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;width:12px;height:12px;background:#fff;border-right:1px solid var(--border-d);border-bottom:1px solid var(--border-d);transform:rotate(45deg)}
+.addpop-grp{margin-bottom:12px}
+.addpop-grp:last-child{margin-bottom:0}
+.addpop-t{font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:6px}
+.addpop-chips{display:flex;flex-wrap:wrap;gap:8px}
+.cardadd-t{border:1px solid var(--border-d);border-radius:16px;padding:5px 14px;font-size:13px;color:#41506a;cursor:pointer;background:#fff;user-select:none}
+.cardadd-t:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-l)}
+
+/* 题目操作行里的开关（默认选项 / 选项关联字段），与必填/复制/删除同一行 */
+.qc-tog{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#6a7688;cursor:pointer}
+
+/* ===== 画布：题目标题输入 + 单列/双列 + 关联开关 ===== */
+.cq-title{border:none;border-bottom:1px solid transparent;font-size:15px;font-weight:500;color:#2f3b4c;padding:2px 0;background:transparent;width:100%}
+.cq-title:focus{outline:none;border-bottom-color:var(--primary)}
+.cq-title::placeholder{color:#c2ccd9;font-weight:400}
+.cq-titrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cq-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#6a7688;cursor:pointer;white-space:nowrap}
+.cq-cols{display:inline-flex;border:1px solid var(--border-d);border-radius:6px;overflow:hidden}
+.cq-cols button{border:none;background:#fff;padding:3px 10px;font-size:12px;color:#6a7688}
+.cq-cols button.on{background:var(--primary);color:#fff}
+.cq-default{font-size:11px;color:var(--muted);margin-left:2px;cursor:pointer;white-space:nowrap}
+.cq-default.on{color:var(--primary)}
+
+/* ===== 应用端顶部二级导航：一级=标签页(下划线)，二级=浅色条内胶囊 ===== */
+.subnav{background:#fff;border-bottom:1px solid var(--border)}
+.subnav-cats{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--border);overflow-x:auto}
+.cat-tab{position:relative;padding:12px 18px;font-size:14px;color:#5c6b7e;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.cat-tab:hover{color:var(--primary)}
+.cat-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.subnav-forms{display:flex;align-items:center;gap:8px;padding:9px 16px 9px 30px;background:#f5f9fe;flex-wrap:wrap;position:relative}
+.subnav-forms::before{content:"";position:absolute;left:18px;top:50%;width:6px;height:6px;border-left:1.5px solid #b7c6da;border-bottom:1.5px solid #b7c6da;transform:translateY(-70%) rotate(-45deg)}
+.subnav-forms .lb{font-size:12px;color:var(--muted);margin-right:2px}
+.form-pill{padding:5px 14px;border-radius:16px;font-size:13px;color:#41506a;cursor:pointer;background:#fff;border:1px solid var(--border-d)}
+.form-pill:hover{border-color:var(--primary);color:var(--primary)}
+.form-pill.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* 子表列配置（右栏属性） */
+.colcfg{border:1px solid var(--border-d);border-radius:6px;padding:8px;margin-bottom:8px}
+.colcfg-r{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.colcfg-r input.nm{flex:1;min-width:0;border:1px solid var(--border-d);border-radius:4px;padding:5px 7px;font-size:12px}
+.colcfg-r select{border:1px solid var(--border-d);border-radius:4px;padding:5px;font-size:12px}
+.colcfg-r .rm{color:#c2ccd9;cursor:pointer;font-weight:700}
+.colcfg-r .rm:hover{color:var(--danger)}
+.colcfg-opts{display:flex;flex-wrap:wrap;gap:4px}
+.colcfg-opts input{border:1px solid var(--border-d);border-radius:12px;padding:3px 8px;font-size:12px;width:80px}
+.colcfg-opts .addo{color:var(--primary);cursor:pointer;font-size:12px;align-self:center}
