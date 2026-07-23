@@ -148,3 +148,149 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .drawer .d-h{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:600;display:flex;justify-content:space-between;align-items:center}
 .drawer .d-b{padding:18px;overflow:auto;flex:1}
 .drawer .d-f{padding:12px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+
+/* ========== 新模型：问卷网风格题目渲染（预览/填报共用） ========== */
+.ph{color:var(--muted);font-style:normal}
+.q{padding:14px 0;border-bottom:1px solid #f0f3f8}
+.q-h{font-size:15px;color:#2f3b4c;margin-bottom:12px;line-height:1.5}
+.q-req{color:var(--danger);margin-right:2px}
+.q-no{color:#8a97a8;margin-right:2px}
+.q-title{font-weight:500}
+.q-opts{display:flex;flex-direction:column;gap:10px}
+.q-opts.cols2{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+.q-opt{display:flex;align-items:center;gap:10px;color:#41506a;cursor:default}
+.q-opt-t{flex:1}
+.q-radio{width:18px;height:18px;border:1px solid #c7d0dd;border-radius:50%;flex:none;background:#f3f6fb}
+.q-check{width:18px;height:18px;border:1px solid #c7d0dd;border-radius:4px;flex:none;background:#f3f6fb}
+.q-score{color:var(--muted);font-size:13px}
+.q-input{width:100%;border:1px solid var(--border-d);border-radius:6px;padding:9px 11px;font-size:14px;background:#fafcff;color:var(--text)}
+.q-num{display:flex;gap:8px;align-items:center}.q-num .q-input{flex:1}
+.q-unit{color:var(--muted)}
+.q-rich{padding:12px 14px;background:#f7f9fc;border-radius:6px;color:#5c6b7e;font-size:13px;line-height:1.8;border:none}
+.q-img{width:80px;height:80px;border:1px dashed var(--border-d);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:26px}
+.q-tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.q-chip{background:var(--primary-l);color:var(--primary);border-radius:14px;padding:3px 10px;font-size:12px}
+.q-taginput{flex:1;min-width:140px}
+.q-sub{border:1px dashed var(--border-d);border-radius:6px;padding:14px;color:var(--muted);text-align:center}
+
+/* 预览容器 */
+.pv-wrap{background:#eef2f7;min-height:100vh}
+.pv-toolbar{display:flex;justify-content:center;gap:10px;padding:14px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.pv-seg{display:inline-flex;border:1px solid var(--border-d);border-radius:8px;overflow:hidden}
+.pv-seg button{border:none;background:#fff;padding:8px 20px;font-size:13px;color:#6a7688}
+.pv-seg button.active{background:var(--primary);color:#fff}
+.pv-stage{display:flex;justify-content:center;padding:28px 16px}
+.pv-paper{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(20,50,90,.08);padding:36px 40px;width:800px;max-width:100%}
+.pv-paper.mobile{width:390px;padding:24px 20px;border-radius:26px;border:8px solid #e6ebf3}
+.pv-title{font-size:22px;font-weight:600;text-align:center;margin-bottom:22px;color:#2f3b4c}
+.pv-theme{font-size:16px;font-weight:600;text-align:center;color:#41506a;margin:10px 0 6px}
+.pv-page{font-size:12px;color:var(--muted);text-align:center;margin-bottom:8px}
+.pv-page-sec+.pv-page-sec{margin-top:6px}
+
+/* ========== 三栏搭建器（问卷网风格） ========== */
+.bd{display:flex;height:calc(100vh - 56px)}
+.bd-left{width:230px;flex:none;background:#fff;border-right:1px solid var(--border);overflow:auto;padding:14px}
+.bd-mid{flex:1;overflow:auto;background:#eef2f7;padding:22px 26px}
+.bd-right{width:320px;flex:none;background:#fff;border-left:1px solid var(--border);overflow:auto;padding:16px}
+.bd-grp{margin-bottom:16px}
+.bd-grp-t{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:1px}
+.bd-types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bd-type{border:1px solid var(--border-d);border-radius:8px;padding:9px 6px;text-align:center;font-size:13px;color:#41506a;cursor:grab;background:#fff;user-select:none;transition:.12s}
+.bd-type:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-l)}
+.bd-type.dragging{opacity:.4}
+
+.cv{width:820px;max-width:100%;margin:0 auto;background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:26px 30px 40px}
+.cv-title{width:100%;border:none;border-bottom:2px solid transparent;text-align:center;font-size:22px;font-weight:600;padding:8px 0;color:#2f3b4c}
+.cv-title:focus{outline:none;border-bottom-color:var(--primary)}
+.cv-title::placeholder{color:#c2ccd9;font-weight:400}
+.pg-tabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);padding:14px 0;margin-bottom:6px}
+.pg-tab{padding:6px 12px;border-radius:6px;background:#eef2f7;color:#6a7688;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.pg-tab.active{background:var(--primary);color:#fff}
+.pg-tab .x{cursor:pointer;opacity:.7}
+.pg-add{width:30px;height:30px;border-radius:6px;border:1px dashed var(--border-d);background:#fff;color:var(--muted);font-size:16px}
+.pg-add:disabled{opacity:.4;cursor:not-allowed}
+.cv-theme{width:100%;border:none;text-align:center;font-size:16px;font-weight:600;color:#41506a;padding:10px 0}
+.cv-theme:focus{outline:none}
+.cv-theme::placeholder{color:#c2ccd9;font-weight:400}
+
+/* 画布中的题目卡片 */
+.qc{border:1px solid transparent;border-radius:8px;padding:6px 12px;margin:4px 0;position:relative;transition:.12s}
+.qc:hover{background:#f7faff}
+.qc.sel{border-color:var(--primary);background:#f5f9ff;box-shadow:0 0 0 2px var(--primary-l)}
+.qc.drop-before{box-shadow:0 -3px 0 var(--primary)}
+.qc.drop-after{box-shadow:0 3px 0 var(--primary)}
+.qc-drag{position:absolute;left:-4px;top:10px;color:#c2ccd9;cursor:grab;font-size:14px;padding:2px}
+.qc-ops{display:flex;gap:16px;align-items:center;padding:8px 0 4px;border-top:1px dashed #eef0f4;margin-top:8px;font-size:13px;color:#6a7688}
+.qc-ops label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.qc-ops .op{cursor:pointer}
+.qc-ops .op:hover{color:var(--primary)}
+.qc-ops .op.del:hover{color:var(--danger)}
+.qc-type{position:absolute;right:10px;top:8px;font-size:11px;background:#eef2f7;color:#8a97a8;border-radius:4px;padding:1px 7px}
+
+/* 右栏属性 */
+.pp-empty{color:var(--muted);font-size:13px;text-align:center;padding:40px 0}
+.pp-sec{margin-bottom:18px}
+.pp-sec-t{font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.pp-row{margin-bottom:10px}
+.pp-row>label{display:block;font-size:12px;color:#6a7688;margin-bottom:4px}
+.pp-opt{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.pp-opt input.txt{flex:1;min-width:0;border:1px solid var(--border-d);border-radius:5px;padding:6px 8px;font-size:13px}
+.pp-opt input.score{width:56px;border:1px solid var(--border-d);border-radius:5px;padding:6px;font-size:13px}
+.pp-opt .link{white-space:nowrap;font-size:12px}
+.pp-opt .rm{color:#c2ccd9;cursor:pointer;font-weight:700}
+.pp-opt .rm:hover{color:var(--danger)}
+.pp-linked{flex:1;background:#f3f6fb;border:1px solid var(--border-d);border-radius:5px;padding:6px 8px;font-size:13px;color:#41506a;display:flex;justify-content:space-between;align-items:center}
+.pp-add-opt{color:var(--primary);cursor:pointer;font-size:13px;margin-top:4px;display:inline-block}
+.sw{display:inline-block;position:relative;width:40px;height:22px;border-radius:12px;background:#d5deea;cursor:pointer;transition:.15s;flex:none;vertical-align:middle}
+.sw.on{background:var(--primary)}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+.sw.on::after{left:20px}
+.pp-switch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pp-switch span{font-size:13px;color:#41506a}
+
+/* ===== 卡片分组（画布） ===== */
+.cardblk{border:1px solid var(--border);border-radius:10px;background:#fff;padding:4px 14px 12px;margin:14px 0;position:relative}
+.cardblk.cur{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-l)}
+.cardblk-h{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eef0f4;margin-bottom:4px}
+.cardblk-t{border:none;font-size:15px;font-weight:600;color:#41506a;flex:1;padding:4px 0;background:transparent}
+.cardblk-t:focus{outline:none}
+.cardblk-t::placeholder{color:#c2ccd9;font-weight:400}
+.cardblk-del{font-size:12px;color:#8a97a8;cursor:pointer;white-space:nowrap;margin-left:10px}
+.cardblk-del:hover{color:var(--danger)}
+.card-add{display:block;width:100%;border:1px dashed var(--border-d);background:#fff;color:var(--primary);border-radius:8px;padding:10px;margin-top:10px;font-size:14px}
+.card-add:hover{background:var(--primary-l)}
+
+/* ===== 中间选项编辑 ===== */
+.cq-opts{display:flex;flex-direction:column;gap:9px;margin:8px 0}
+.cq-opt{display:flex;align-items:center;gap:9px}
+.cq-opt .mark{width:16px;height:16px;border:1px solid #c7d0dd;flex:none;background:#f3f6fb}
+.cq-opt .mark.radio{border-radius:50%}
+.cq-opt .mark.check{border-radius:4px}
+.cq-opt input.otext{flex:1;min-width:0;border:1px solid var(--border-d);border-radius:6px;padding:7px 9px;font-size:14px}
+.cq-opt input.otext:focus{outline:none;border-color:var(--primary)}
+.cq-opt input.oscore{width:60px;border:1px solid var(--border-d);border-radius:6px;padding:7px;font-size:13px;text-align:center}
+.cq-opt .olink{white-space:nowrap;color:var(--primary);cursor:pointer;font-size:13px}
+.cq-opt .olinked{flex:1;background:#f3f6fb;border:1px solid var(--border-d);border-radius:6px;padding:7px 9px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.cq-opt .orm{color:#c2ccd9;cursor:pointer;font-weight:700;padding:0 2px}
+.cq-opt .orm:hover{color:var(--danger)}
+.cq-addopt{color:var(--primary);cursor:pointer;font-size:14px;display:inline-block;margin-top:2px}
+
+/* ===== 富文本编辑器 ===== */
+.cq-rich-tb{display:flex;gap:4px;margin:6px 0}
+.cq-rich-tb button{border:1px solid var(--border-d);background:#fff;border-radius:4px;padding:3px 9px;font-size:13px;cursor:pointer}
+.cq-rich-tb button:hover{border-color:var(--primary)}
+.cq-rich-ed,.q-rich-edit{min-height:64px;border:1px solid var(--border-d);border-radius:6px;padding:9px 11px;font-size:14px;line-height:1.7;background:#fff}
+.cq-rich-ed:focus,.q-rich-edit:focus{outline:none;border-color:var(--primary)}
+
+/* ===== 预览卡片 & 题目提示 ===== */
+.pv-card{border:1px solid #eef0f4;border-radius:8px;padding:4px 16px 6px;margin:14px 0}
+.pv-card-t{font-weight:600;color:#41506a;padding:10px 0 2px;font-size:15px}
+.q-hint{color:#8a97a8;font-size:12px;margin:-4px 0 8px}
+.q-real{width:16px;height:16px;flex:none}
+
+/* 画布内：可编辑题目标题 + 关联开关 */
+.q-title-input{border:none;border-bottom:1px solid transparent;font-size:15px;font-weight:500;color:#2f3b4c;padding:2px 0;flex:1;min-width:0;background:transparent}
+.q-title-input:focus{outline:none;border-bottom-color:var(--primary)}
+.q-title-input::placeholder{color:#c2ccd9;font-weight:400}
+.q-head-row{display:flex;align-items:center;gap:4px;margin-bottom:10px}
+.link-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#6a7688;margin:2px 0 8px;cursor:pointer}

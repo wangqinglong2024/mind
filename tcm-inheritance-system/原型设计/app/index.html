@@ -3,148 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>专病数据采集 · 应用端</title>
+<title>应用端 · 数据列表</title>
 <link rel="stylesheet" href="../shared/theme.css">
 <style>
-  .app-wrap{padding:16px}
-  .fv-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
-  .fv-t{font-size:16px;font-weight:600}
-  .fv-b{padding:20px}
-  .cat-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px}
-  .cat-tab{padding:9px 20px;border-radius:22px;background:#fff;border:1px solid var(--border);color:#5a6a80;white-space:nowrap;cursor:pointer;font-size:14px}
-  .cat-tab.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:var(--shadow)}
-  .tpl-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-  .tpl-label{color:var(--muted);font-size:13px}
-  .tpl-chip{padding:6px 14px;border-radius:6px;background:#fff;border:1px solid var(--border);color:#5a6a80;cursor:pointer;font-size:13px}
-  .tpl-chip.active{background:var(--primary-l);border-color:var(--primary);color:var(--primary);font-weight:600}
-  .list-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
-  .list-h .t{font-size:16px;font-weight:600}
-  .empty{padding:60px 20px;text-align:center;color:var(--muted)}
-  /* 移动端卡片列表 */
-  .cards{display:none;flex-direction:column;gap:10px}
-  .rec-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
-  .rec-card .r{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
-  .rec-card .r .k{color:var(--muted)}
-  @media(max-width:767px){
-    .mj-menu,.mj-modtab{display:none}
-    .app-wrap{padding:10px}
-    .tbl-wrap{display:none}
-    .cards{display:flex}
-  }
+  .layout{display:flex;height:calc(100vh - 56px)}
+  .side{width:230px;flex:none;background:#fff;border-right:1px solid var(--border);overflow:auto;padding:12px}
+  .side .cat-h{font-weight:600;color:#41506a;padding:8px 8px 4px;font-size:13px}
+  .side .tpl{padding:8px 10px 8px 22px;border-radius:6px;cursor:pointer;font-size:13px;color:#41506a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .side .tpl:hover{background:var(--hover)}
+  .side .tpl.active{background:var(--primary-l);color:var(--primary);font-weight:600}
+  .side .tpl .st{font-size:11px;color:#8a97a8;margin-left:4px}
+  .main{flex:1;overflow:auto;padding:18px 22px}
+  .qbar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+  .qf{display:flex;flex-direction:column;gap:4px}
+  .qf label{font-size:12px;color:#6a7688}
+  .qf .in,.qf .ctrl{border:1px solid var(--border-d);border-radius:6px;padding:7px 9px;font-size:13px;min-width:150px;background:#fff}
+  .qf .range{display:flex;gap:6px;align-items:center}
+  .qf .range .in{min-width:110px}
+  .qf.algo{margin-left:auto;align-self:center;flex-direction:row;gap:8px}
+  .rec-q{padding:10px 0;border-bottom:1px solid #f0f3f8}
+  .rec-l{color:#6a7688;font-size:13px;margin-bottom:5px}
+  .rec-v{color:#2f3b4c;font-size:14px}
 </style>
 </head>
 <body>
 <div class="mj-top">
-  <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">名老中医AI传承系统</span></div>
-  <div class="mj-menu"><a class="active">专病采集</a><a>名师数据</a><a>统计分析</a></div>
-  <div class="mj-user"><span class="av"></span><span>录入员 · 王青龙</span></div>
+  <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">应用端</span></div>
+  <div class="mj-menu"><a href="../admin/index.html">表单设置</a><a class="active">数据列表</a></div>
+  <div class="mj-user"><span class="av"></span><span>录入员</span></div>
 </div>
-
-<div class="app-wrap">
-  <div class="cat-tabs" id="tabs"></div>
-  <div class="tpl-bar" id="tplBar"></div>
-  <div id="listView" class="panel" style="padding:16px">
-    <div class="list-h">
-      <div class="t" id="listTitle">—</div>
-      <div><button class="btn primary" id="btnAdd">+ 新增填报</button></div>
+<div class="layout">
+  <!-- 左：类目 → 表单模板（跟随管理端层级） -->
+  <div class="side" id="side"></div>
+  <div class="main">
+    <h2 id="tplTitle" style="margin:2px 0 14px;font-size:18px"></h2>
+    <div class="qbar" id="qbar"></div>
+    <div class="panel">
+      <table class="tbl">
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
     </div>
-    <div class="tbl-wrap"><table class="tbl" id="tbl"><thead></thead><tbody></tbody></table></div>
-    <div class="cards" id="cards"></div>
-    <div class="empty" id="empty" style="display:none">该模板暂无数据，点击「新增填报」开始录入</div>
   </div>
-  <div id="formView" class="panel" style="display:none"></div>
 </div>
-
+<!-- 查看记录 -->
+<div id="dtMask" class="mask" style="display:none">
+  <div class="modal" style="width:640px;max-height:86vh">
+    <div class="m-h">查看记录 <span class="x" onclick="closeDetail()">×</span></div>
+    <div class="m-b" id="dtBody"></div>
+    <div class="m-f"><button class="btn" onclick="closeDetail()">关闭</button></div>
+  </div>
+</div>
 <script src="../shared/store.js"></script>
 <script src="../shared/engine.js"></script>
 <script>
 const S=MJ.Store, E=MJ.Engine;
-const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;};
-const device=()=> window.innerWidth<768?'h5':'web';
-let curCat=null, curFormId=null;
-const curForm=()=>S.getForm(curFormId);
+let curId=null, filters={};
 
-function catsWithForms(){
-  return S.getCategories().filter(c=> S.formsByCategory(c.id).length>0);
+function eachQ(form,fn){ (form.pages||[]).forEach(p=>(p.cards||[]).forEach(c=>(c.questions||[]).forEach(fn))); }
+function renderSide(){
+  const cats=S.getCategories();
+  let firstWithData=null, firstAny=null;
+  document.getElementById('side').innerHTML = cats.map(c=>{
+    const tpls=S.formsByCategory(c.id);
+    return `<div class="cat-h">${E.esc(c.name)}</div>` + (tpls.length? tpls.map(f=>{
+      if(!firstAny) firstAny=f.id;
+      if(!firstWithData && S.getSubmissions(f.id).length) firstWithData=f.id;
+      const st={draft:'草稿',published:'已发布',unpublished:'取消发布'}[f.status];
+      return `<div class="tpl ${f.id===curId?'active':''}" onclick="selectTpl('${f.id}')">${E.esc(f.title)||'（未命名）'}<span class="st">${st}</span></div>`;
+    }).join('') : `<div class="tpl" style="color:#c2ccd9;cursor:default">（无表单）</div>`);
+  }).join('') || '<div class="hint" style="padding:8px">暂无类目</div>';
+  if(!curId) curId = firstWithData || firstAny;
 }
-function renderTabs(){
-  const box=document.getElementById('tabs'); box.innerHTML='';
-  const cats=catsWithForms();
-  if(!curCat || !cats.some(c=>c.id===curCat)) curCat=cats[0]&&cats[0].id;
-  cats.forEach(c=>{
-    const t=el('div','cat-tab'+(c.id===curCat?' active':'')); t.textContent=c.name;
-    t.onclick=()=>{ curCat=c.id; curFormId=null; renderTabs(); };
-    box.appendChild(t);
-  });
-  renderTpl();
+function selectTpl(id){ curId=id; filters={}; renderSide(); renderMain(); }
+function allQueryQuestions(form){ const out=[]; eachQ(form,q=>{ if(q.query&&q.query.on) out.push(q); }); return out; }
+function listColumns(form){ const out=[]; eachQ(form,q=>{ if(q.showInList) out.push(q); }); return out; }
+
+function renderMain(){
+  const cur = curId && S.getForm(curId);
+  if(!cur){ document.getElementById('tplTitle').textContent='请选择左侧表单'; document.getElementById('qbar').innerHTML=''; document.getElementById('thead').innerHTML=''; document.getElementById('tbody').innerHTML=''; return; }
+  document.getElementById('tplTitle').textContent = (cur.title||'（未命名）')+' · 数据';
+  renderQBar(cur); renderTable(cur);
 }
-function renderTpl(){
-  const bar=document.getElementById('tplBar'); bar.innerHTML='';
-  const forms=curCat? S.formsByCategory(curCat):[];
-  if(!curFormId || !forms.some(f=>f.id===curFormId)) curFormId=forms[0]&&forms[0].id;
-  if(forms.length){
-    bar.appendChild(el('span','tpl-label','选择模板：'));
-    forms.forEach(f=>{ const t=el('div','tpl-chip'+(f.id===curFormId?' active':'')); t.textContent=f.name; t.onclick=()=>{ curFormId=f.id; renderTpl(); }; bar.appendChild(t); });
+function renderQBar(cur){
+  const qs=allQueryQuestions(cur); const bar=document.getElementById('qbar');
+  if(!qs.length){ bar.innerHTML='<span style="color:#8a97a8;font-size:13px">该表单未配置查询条件</span>'; return; }
+  bar.innerHTML = qs.map(q=>{
+    const mode=q.query.mode; let ctrl='';
+    if(mode==='fuzzy') ctrl=`<input class="in" placeholder="模糊匹配" oninput="setF('${q.id}',this.value)">`;
+    else if(mode==='exact'&&q.type==='text') ctrl=`<input class="in" placeholder="精准匹配" oninput="setF('${q.id}',this.value)">`;
+    else if(mode==='range'&&q.type==='number') ctrl=`<div class="range"><input class="in" type="number" placeholder="最小" oninput="setF('${q.id}_min',this.value)"><span>~</span><input class="in" type="number" placeholder="最大" oninput="setF('${q.id}_max',this.value)"></div>`;
+    else if(mode==='range'&&q.type==='date') ctrl=`<div class="range"><input class="in" type="date" oninput="setF('${q.id}_from',this.value)"><span>~</span><input class="in" type="date" oninput="setF('${q.id}_to',this.value)"></div>`;
+    else if(mode==='select'||mode==='multi') ctrl=`<select class="ctrl in" onchange="setF('${q.id}',this.value)"><option value="">全部</option>${q.options.map(o=>`<option>${E.esc(o.linkName||o.text)}</option>`).join('')}</select>`;
+    else ctrl=`<input class="in" oninput="setF('${q.id}',this.value)">`;
+    return `<div class="qf"><label>${E.esc(q.title)}</label>${ctrl}</div>`;
+  }).join('') + `<div class="qf algo"><button class="btn" onclick="clearF()">重置</button></div>`;
+}
+function setF(k,v){ filters[k]=v; renderTable(S.getForm(curId)); }
+function clearF(){ filters={}; renderMain(); }
+
+function matchRow(cur,v){
+  const qs=allQueryQuestions(cur);
+  for(const q of qs){ const val=v[q.id]; const m=q.query.mode;
+    if(m==='fuzzy'){ const f=filters[q.id]; if(f && !String(val||'').includes(f)) return false; }
+    else if(m==='exact'&&q.type==='text'){ const f=filters[q.id]; if(f && String(val||'')!==f) return false; }
+    else if(m==='range'&&q.type==='number'){ const mn=filters[q.id+'_min'],mx=filters[q.id+'_max']; if(mn!==undefined&&mn!==''&&Number(val)<Number(mn))return false; if(mx!==undefined&&mx!==''&&Number(val)>Number(mx))return false; }
+    else if(m==='range'&&q.type==='date'){ const fr=filters[q.id+'_from'],to=filters[q.id+'_to']; if(fr&&String(val||'')<fr)return false; if(to&&String(val||'')>to)return false; }
+    else if(m==='select'||m==='multi'){ const f=filters[q.id]; if(f){ const arr=Array.isArray(val)?val:[val]; if(!arr.includes(f))return false; } }
   }
-  renderList();
+  return true;
 }
-function renderList(){
-  const cur=curForm();
-  document.getElementById('listTitle').textContent = cur ? cur.name : '—';
-  const cols=cur? E.listColumns(cur):[];
-  const subs=cur? S.getSubmissions(cur.id).slice().sort((a,b)=>b.createdAt-a.createdAt):[];
-  const tbl=document.getElementById('tbl'), cards=document.getElementById('cards'), empty=document.getElementById('empty');
-  const thead=tbl.querySelector('thead'), tbody=tbl.querySelector('tbody');
-  thead.innerHTML=''; tbody.innerHTML=''; cards.innerHTML='';
-  empty.style.display = subs.length? 'none':'block';
+function renderTable(cur){
+  const cols=listColumns(cur);
+  document.getElementById('thead').innerHTML=`<tr>${cols.map(c=>`<th>${E.esc(c.title)}</th>`).join('')}<th style="width:120px">填写时间</th><th style="width:70px">操作</th></tr>`;
+  const rows=S.getSubmissions(cur.id).filter(s=>matchRow(cur,s.values)).sort((a,b)=>b.createdAt-a.createdAt);
+  const fmt=ts=>{const d=new Date(ts);const p=n=>('0'+n).slice(-2);return `${d.getMonth()+1}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;};
+  document.getElementById('tbody').innerHTML = rows.map(s=>`<tr style="cursor:pointer" onclick="openDetail('${s.id}')">${cols.map(c=>{ let v=s.values[c.id]; if(Array.isArray(v))v=v.join('、'); return `<td>${E.esc(v==null?'':v)}</td>`; }).join('')}<td>${fmt(s.createdAt)}</td><td><span class="link">查看</span></td></tr>`).join('')
+    || `<tr><td colspan="${cols.length+2}" style="text-align:center;color:#8a97a8;padding:30px">无数据</td></tr>`;
+}
 
-  // 表头
-  const htr=document.createElement('tr');
-  htr.innerHTML='<th style="width:60px">序号</th>'+cols.map(c=>`<th>${c.label}</th>`).join('')+'<th>提交时间</th><th style="width:90px">操作</th>';
-  thead.appendChild(htr);
-  subs.forEach((s,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td>`+cols.map(c=>`<td>${esc(E.summary(c,s.values[c.id]))}</td>`).join('')
-      +`<td>${fmt(s.createdAt)}</td><td><span class="link" data-id="${s.id}">查看</span></td>`;
-    tbody.appendChild(tr);
-    // 移动端卡片
-    const cd=document.createElement('div'); cd.className='rec-card';
-    cd.innerHTML=cols.map(c=>`<div class="r"><span class="k">${c.label}</span><span>${esc(E.summary(c,s.values[c.id]))||'—'}</span></div>`).join('')
-      +`<div class="r"><span class="k">提交时间</span><span>${fmt(s.createdAt)}</span></div>`
-      +`<div style="text-align:right;margin-top:6px"><span class="link" data-id="${s.id}">查看</span></div>`;
-    cards.appendChild(cd);
-  });
-  document.querySelectorAll('[data-id]').forEach(a=>a.onclick=()=>openForm(subs.find(x=>x.id===a.dataset.id)));
+/* ---- 查看记录详情 ---- */
+function openDetail(subId){
+  const cur=S.getForm(curId); const sub=S.getSubmissions(cur.id).find(x=>x.id===subId); if(!sub) return;
+  document.getElementById('dtBody').innerHTML = renderRecord(cur, sub.values);
+  document.getElementById('dtMask').style.display='flex';
 }
-const elc=el;
-function esc(s){ return (s==null?'':String(s)).replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m])); }
-function fmt(t){ const d=new Date(t); const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
-
-function backToList(){ document.getElementById('formView').style.display='none'; document.getElementById('listView').style.display='block'; }
-function openForm(sub){
-  const cur=curForm(); if(!cur) return;
-  const view=!!sub;
-  const inst=E.renderForm(cur,{device:device(), values: sub? sub.values:{}});
-  const fv=document.getElementById('formView'); fv.innerHTML='';
-  const head=elc('div','fv-h'); head.appendChild(elc('span','fv-t', view?('查看记录 · '+cur.name):('新增填报 · '+cur.name)));
-  const back=elc('button','btn','← 返回列表'); back.onclick=backToList; head.appendChild(back);
-  const body=elc('div','fv-b'); body.appendChild(inst.el);
-  fv.append(head, body);
-  if(view){
-    inst.pageSubmit.style.display='none';
-    inst.el.querySelectorAll('.mj-col input,.mj-col select,.mj-col textarea,.subt input,.subt select').forEach(x=>x.disabled=true);
-    inst.el.querySelectorAll('.img-add,.subt .link,.tags-field .ctrl,.chip-x').forEach(x=>x.style.display='none');
-  } else {
-    inst.onSubmit(vals=>{
-      S.addSubmission({ id:S.uid('s'), formId:cur.id, categoryId:curCat, createdAt:Date.now(), values:vals });
-      backToList(); renderList();
-    });
-  }
-  document.getElementById('listView').style.display='none'; fv.style.display='block'; window.scrollTo(0,0);
+function closeDetail(){ document.getElementById('dtMask').style.display='none'; }
+function renderRecord(form, values){
+  let no=0;
+  return `<div class="pv-title" style="font-size:18px;margin-bottom:14px">${E.esc(form.title)}</div>` + (form.pages||[]).map(p=>{
+    const theme=p.theme?`<div class="pv-theme">${E.esc(p.theme)}</div>`:'';
+    const cards=(p.cards||[]).map(cd=>{
+      const ct=cd.title?`<div class="pv-card-t">${E.esc(cd.title)}</div>`:'';
+      const qs=(cd.questions||[]).map(q=>{
+        if(q.type==='richtext') return `<div class="q q-rich">${q.content||''}</div>`;
+        no++;
+        let v=values[q.id]; if(Array.isArray(v)) v=v.join('、');
+        v=(v==null||v==='')?'<span style="color:#c2ccd9">—</span>':E.esc(v);
+        return `<div class="rec-q"><div class="rec-l">${no}. ${E.esc(q.title)}</div><div class="rec-v">${v}</div></div>`;
+      }).join('');
+      return `<div class="pv-card">${ct}${qs}</div>`;
+    }).join('');
+    return theme+cards;
+  }).join('');
 }
-document.getElementById('btnAdd').onclick=()=>{ if(curForm()) openForm(null); };
-let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(renderList,200); });
-renderTabs();
+renderSide();
+renderMain();
 </script>
 </body>
 </html>

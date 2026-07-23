@@ -3,46 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>专病动态表单系统 · 原型入口</title>
+<title>表单中台 · 原型入口</title>
 <link rel="stylesheet" href="shared/theme.css">
 <style>
   .hero{max-width:900px;margin:0 auto;padding:40px 20px}
   .h-t{font-size:22px;font-weight:700;margin-bottom:6px}
-  .h-s{color:var(--muted);margin-bottom:28px}
+  .h-s{color:var(--muted);margin-bottom:28px;line-height:1.7}
   .cards2{display:flex;gap:20px;flex-wrap:wrap}
   .entry{flex:1;min-width:260px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:.15s}
   .entry:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,50,90,.14);border-color:var(--primary)}
-  .entry .ico{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px}
-  .entry.admin .ico{background:var(--primary-l)}
+  .entry .ico{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px;background:var(--primary-l)}
   .entry.app .ico{background:var(--orange-l)}
   .entry h3{margin:0 0 8px;font-size:17px}
   .entry p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
-  .note{margin-top:26px;font-size:12px;color:var(--muted);line-height:1.8}
-  .reset{margin-top:14px}
+  .reset{margin-top:24px}
 </style>
 </head>
 <body>
 <div class="mj-top">
-  <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">名老中医AI传承系统</span></div>
+  <div class="mj-logo"><span class="dot"></span>脉景 <span class="accent">表单中台</span></div>
   <div class="mj-menu"></div>
-  <div class="mj-user"><span class="av"></span><span>王青龙</span></div>
+  <div class="mj-user"><span class="av"></span><span>张三</span></div>
 </div>
 <div class="hero">
-  <div class="h-t">专病 · 动态表单系统 原型</div>
-  <div class="h-s">管理端配置表单与类目，应用端按类目 Tab 采集数据。两端通过本地存储互通——在管理端保存/新增填报后，另一端刷新即可看到。</div>
+  <div class="h-t">表单中台 · 原型</div>
+  <div class="h-s">「表单的配置与渲染」中台共用，各业务（如冠心病采集、专家档案…）只是使用方；分类、发布状态等属于业务侧。两端通过本地存储互通——搭建端保存后，应用端刷新即可看到。</div>
   <div class="cards2">
-    <a class="entry admin" href="admin/index.html">
-      <div class="ico">🛠️</div>
-      <h3>管理端（配置）</h3>
-      <p>配置类目与模板、页 / 卡片 / 字段（9 种组件）及其属性（宽度、是否入列表、校验、条件等）；一键预览，可切 Web / 移动端。</p>
+    <a class="entry" href="admin/index.html">
+      <div class="ico">🧩</div>
+      <h3>搭建端（类目 + 表单列表 + 搭建器）</h3>
+      <p>类目（单级）下建多个表单；表单列表（搜索/发布状态/编辑·复制·确认发布·删除）；问卷网式三栏搭建器：左组件 / 中画布 / 右属性；页内多卡片分组、题目拖拽排序、选择题非下拉、单选打分、选项关联症状疾病、查询条件、富文本编辑器。</p>
     </a>
     <a class="entry app" href="app/index.html">
-      <div class="ico">📝</div>
-      <h3>应用端（填报）</h3>
-      <p>按专病/数据类目 Tab 展示动态列表（列由「是否在列表中显示」决定）；新增填报、查看记录；Web 与 H5 响应式自适应。</p>
+      <div class="ico">📊</div>
+      <h3>应用端（数据列表）</h3>
+      <p>按中台配置的「查询条件」在列表上方自动生成筛选（模糊/范围/下拉等）；字段+规则可传给算法；列由「在列表中显示为列」决定。</p>
     </a>
   </div>
-  <div class="reset" style="margin-top:24px"><button class="btn" onclick="MJ.Store.reset();location.reload()">重置为初始示例数据</button></div>
 </div>
 <script src="shared/store.js"></script>
 </body>
